@@ -27,6 +27,10 @@
       "class": "mode-conflict",
       "reason": "gate-vocab-without-marker",
       "handoff": "comment-only"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
     }
   },
   "adr": [

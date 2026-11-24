@@ -31,6 +31,10 @@
       "class": "cardinality-invalid",
       "reason": "exec-missing",
       "handoff": "comment-only"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
     }
   },
   "adr": [

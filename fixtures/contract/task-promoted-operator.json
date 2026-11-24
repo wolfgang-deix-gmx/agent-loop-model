@@ -40,6 +40,10 @@
       "maturity": "beginner",
       "minMaturity": "none",
       "hold": "none"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
     }
   },
   "adr": [

@@ -30,6 +30,10 @@
       "class": "mode-conflict",
       "reason": "gate-with-work-status",
       "handoff": "comment-only"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
     }
   },
   "adr": [

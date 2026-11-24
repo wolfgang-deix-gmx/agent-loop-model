@@ -29,6 +29,10 @@
       "class": "mode-conflict",
       "reason": "unknown-mode-label",
       "handoff": "comment-only"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
     }
   },
   "adr": [

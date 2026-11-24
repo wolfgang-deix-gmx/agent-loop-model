@@ -34,7 +34,7 @@ G1–G8); every rule in the model names its ADR-010 section.
 | `outputCodes` | set (c): every code a result may contain | [classification.md](classification.md) |
 | `cardinality` | per family, type and stage | [labels.md](labels.md) |
 | `gateChains` | ordered chains and their invariants | [labels.md](labels.md) |
-| `derivations` | ordered decision tables: mode, contract, role projection, claim pool | [classification.md](classification.md) |
+| `derivations` | ordered decision tables: mode, contract, role projection, claim pool, action guard | [classification.md](classification.md) |
 | `claimPools` | pools, hold effects, minimum maturity, rule text | [classification.md](classification.md) |
 | `externalPreconditions`, `postWrite`, `transitions` | label transitions with actor, static pre-check, exceptions, external preconditions and post-write steps | [transitions.md](transitions.md) |
 

@@ -19,7 +19,7 @@ not become vocabulary by appearing there.
 | gate | `gate:created`, `gate:drafted`, `gate:specified`, `gate:promoted`, `gate:implemented`, `gate:accepted`, `gate:activated` | `prefix-invalid` / `unknown-gate` (without marker: mode conflict) |
 | maturity | `maturity:beginner`, `maturity:advanced`, `maturity:master` | `cardinality-invalid` / `maturity-unknown` (without marker: mode conflict) |
 | exec | `exec:agent`, `exec:operator` | `cardinality-invalid` / `exec-unknown` (without marker: mode conflict) |
-| hold | `needs:operator`, `needs:upstream`, `needs:replanning` | ignored, except for duplicate detection |
+| hold | `needs:operator`, `needs:upstream`, `needs:replanning` | ignored by classification except for duplicate detection; **blocks every consumer action** via `actionGuard` |
 | terminal | `status:finished`, `status:abandoned` | any other `status:*` on a gate issue is a work status: mode conflict `gate-with-work-status` |
 | role | `role:architect`, `role:operator`, `role:coder`, `role:reviewer` | `role:planner` is a mode conflict; any other unknown role is only role drift |
 | type | `epic` | — |

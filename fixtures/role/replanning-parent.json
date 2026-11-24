@@ -41,6 +41,10 @@
       "maturity": "master",
       "minMaturity": "none",
       "hold": "needs:replanning"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
     }
   },
   "adr": [

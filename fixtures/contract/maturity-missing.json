@@ -28,6 +28,10 @@
       "class": "cardinality-invalid",
       "reason": "maturity-missing",
       "handoff": "comment-only"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
     }
   },
   "adr": [

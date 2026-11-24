@@ -28,6 +28,10 @@
       "class": "mode-conflict",
       "reason": "legacy-status-unknown",
       "handoff": "comment-only"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
     }
   },
   "adr": [

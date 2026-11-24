@@ -38,6 +38,10 @@
       "maturity": "none",
       "minMaturity": "none",
       "hold": "needs:operator,needs:replanning,needs:upstream"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
     }
   },
   "adr": [

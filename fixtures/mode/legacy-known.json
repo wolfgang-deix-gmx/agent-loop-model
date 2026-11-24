@@ -26,6 +26,10 @@
       "class": "not-gate-mode",
       "reason": "mode-legacy",
       "handoff": "none"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
     }
   },
   "adr": [

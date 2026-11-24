@@ -24,6 +24,10 @@ write path. If any of them is unknown, the write is not offered (fail-closed).
 
 No result `ok` anywhere in the model means "allowed to write".
 
+`transitions.globalPrecheck` applies in addition to every `staticPrecheck` and
+every exception: `actionGuard.outcome` must be `ok`, so an unknown `needs:*`
+label blocks every transition (see [consumer-contract.md](consumer-contract.md)).
+
 ## Overview
 
 | Transition | Actor | Static pre-check (short) | Key external preconditions |

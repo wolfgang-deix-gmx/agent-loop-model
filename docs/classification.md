@@ -107,6 +107,14 @@ A pool is a static statement about admissibility. Capability, claim slots,
 leases, the main architect's identity and the quorum are external
 (`claimPools.ruleTextOnly`, `externalPreconditions`).
 
+## Action guard (consumer safety)
+
+`actionGuard` is a fourth result, independent of the other three and without
+evaluator counterpart. It fails with `consumer-guard` / `unknown-hold` (handoff
+`comment-only`) as soon as any unknown `needs:*` label is present, otherwise it
+is `ok` (`guard: pass`). A consumer offers no write and no claim unless it is
+`ok`; every transition requires it through `transitions.globalPrecheck`.
+
 ## Result format and serialization
 
 Results are objects. For a mechanical comparison with the line format of the

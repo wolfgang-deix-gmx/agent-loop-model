@@ -29,6 +29,12 @@
       "class": "cardinality-invalid",
       "reason": "duplicate-label",
       "handoff": "comment-only"
+    },
+    "actionGuard": {
+      "outcome": "fail",
+      "class": "consumer-guard",
+      "reason": "unknown-hold",
+      "handoff": "comment-only"
     }
   },
   "adr": [

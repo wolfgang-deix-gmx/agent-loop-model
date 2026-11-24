@@ -11,6 +11,7 @@ tables with the fixture expectations, the agent-loop evaluator or ADR-010.
 from __future__ import annotations
 
 import collections
+import copy
 import json
 import pathlib
 import sys
@@ -23,6 +24,18 @@ except ImportError:  # pragma: no cover
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 G8_PREFIXES = {"mode:", "gate:", "maturity:", "exec:", "needs:", "status:", "role:"}
+# Independent reference: the label table of ADR-010 G8, copied by hand.
+G8_VOCABULARY = {
+    "mode": {"mode:gate"},
+    "gate": {"gate:created", "gate:drafted", "gate:specified", "gate:promoted", "gate:implemented",
+             "gate:accepted", "gate:activated"},
+    "maturity": {"maturity:beginner", "maturity:advanced", "maturity:master"},
+    "exec": {"exec:agent", "exec:operator"},
+    "hold": {"needs:operator", "needs:upstream", "needs:replanning"},
+    "terminal": {"status:finished", "status:abandoned"},
+    "role": {"role:architect", "role:operator", "role:coder", "role:reviewer"},
+    "type": {"epic"},
+}
 DISCLAIMER = ("NOTE: exit 0 attests structure and coverage only. No classification was computed; "
               "semantic conformance is checked separately (E8-2).")
 
@@ -61,21 +74,81 @@ def schema_errors(validator: Draft202012Validator, doc) -> list[str]:
             for e in sorted(validator.iter_errors(doc), key=lambda e: list(map(str, e.absolute_path)))]
 
 
-def check_model(model: dict, rep: Report) -> None:
-    codes = model["outputCodes"]
-    fams = {f["id"]: f for f in model["vocabulary"]["families"]}
-
-    # Vocabulary (a): G8 names only, no aliases.
+def vocabulary_problems(model: dict) -> list[str]:
+    """Families and members must equal the ADR-010 G8 table exactly."""
     bad = []
-    for f in model["vocabulary"]["families"]:
+    fams = model["vocabulary"]["families"]
+    ids = [f["id"] for f in fams]
+    if len(ids) != len(set(ids)):
+        bad.append("duplicate family id")
+    if set(ids) != set(G8_VOCABULARY):
+        bad.append(f"families {sorted(set(ids) ^ set(G8_VOCABULARY))} differ from G8")
+    for f in fams:
         if "prefix" in f:
             if f["prefix"] not in G8_PREFIXES:
                 bad.append(f"family {f['id']} prefix {f['prefix']}")
             bad += [f"{m} outside prefix {f['prefix']}" for m in f["members"] if not m.startswith(f["prefix"])]
-        elif f.get("exact") != "epic" or f["members"] != ["epic"]:
-            bad.append(f"family {f['id']} exact label")
-    rep.check(not bad, "vocabulary: only G8 prefixes and members, no aliases", "; ".join(bad))
-    rep.check(len(fams) == len(model["vocabulary"]["families"]), "vocabulary: family ids unique", "duplicate family id")
+        members = f["members"]
+        if len(members) != len(set(members)):
+            bad.append(f"family {f['id']} duplicate member")
+        want = G8_VOCABULARY.get(f["id"], set())
+        extra, missing = sorted(set(members) - want), sorted(want - set(members))
+        if extra:
+            bad.append(f"family {f['id']}: not in G8 {extra}")
+        if missing:
+            bad.append(f"family {f['id']}: missing G8 {missing}")
+    return bad
+
+
+def guard_problems(model: dict) -> list[str]:
+    """Unknown needs:* members must block every consumer action (fail-closed)."""
+    bad = []
+    der = next((d for d in model["derivations"] if d["name"] == "actionGuard"), None)
+    if der is None:
+        return ["derivation actionGuard missing"]
+    first = der.get("rows", [{}])[0]
+    want_when = {"count": {"select": {"family": "hold", "members": "unknown"}, "op": "gt", "value": 0}}
+    if first.get("when") != want_when or "fail" not in first.get("result", {}):
+        bad.append("first actionGuard row does not fail on unknown needs:* members")
+    if model["results"].get("actionGuard") != "actionGuard":
+        bad.append("results.actionGuard missing")
+    if model["transitions"].get("globalPrecheck") != {"value": {"of": "actionGuard.outcome", "in": ["ok"]}}:
+        bad.append("transitions.globalPrecheck does not require actionGuard.outcome ok")
+    return bad
+
+
+def self_test(model: dict, rep: Report) -> None:
+    """Negative probes on in-memory copies: the checks above must reject them."""
+    m = copy.deepcopy(model)
+    next(f for f in m["vocabulary"]["families"] if f["id"] == "gate")["members"].append("gate:invented")
+    rep.check(bool(vocabulary_problems(m)), "self-test: vocabulary check rejects an invented member (gate:invented)",
+              "not rejected")
+    m = copy.deepcopy(model)
+    next(f for f in m["vocabulary"]["families"] if f["id"] == "hold")["members"].append("hold:operator")
+    rep.check(bool(vocabulary_problems(m)), "self-test: vocabulary check rejects an alias (hold:operator)",
+              "not rejected")
+    m = copy.deepcopy(model)
+    der = next(d for d in m["derivations"] if d["name"] == "actionGuard")
+    der["rows"] = der["rows"][1:]
+    rep.check(bool(guard_problems(m)), "self-test: guard check rejects a model without the unknown-hold row",
+              "not rejected")
+    m = copy.deepcopy(model)
+    m["transitions"]["globalPrecheck"] = {"always": True}
+    rep.check(bool(guard_problems(m)), "self-test: guard check rejects transitions without the guard",
+              "not rejected")
+
+
+def check_model(model: dict, rep: Report) -> None:
+    codes = model["outputCodes"]
+    fams = {f["id"]: f for f in model["vocabulary"]["families"]}
+
+    # Vocabulary (a): exactly the G8 table, no aliases.
+    bad = vocabulary_problems(model)
+    rep.check(not bad, "vocabulary: families and members equal the ADR-010 G8 table exactly, no aliases",
+              "; ".join(bad))
+    bad = guard_problems(model)
+    rep.check(not bad, "consumer guard: unknown needs:* members block every transition (fail-closed)",
+              "; ".join(bad))
 
     gate_members = set(fams["gate"]["members"])
     chain_bad = [g for t in ("task", "parent") for g in model["gateChains"][t] if g not in gate_members]
@@ -175,7 +248,7 @@ def check_model(model: dict, rep: Report) -> None:
                 tproblems.append(f"{t['id']}: base condition {node['ref']} unknown")
             if "of" in node and "in" in node and not ref_ok(node["of"], names):
                 tproblems.append(f"{t['id']}: value.of {node['of']} unknown")
-        walk([t["staticPrecheck"], t.get("exceptions", [])], tvisit)
+        walk([t["staticPrecheck"], t.get("exceptions", []), model["transitions"]["globalPrecheck"]], tvisit)
     rep.check(not tproblems, "transitions: ids unique, references resolve, external preconditions named",
               "; ".join(tproblems))
     kinds = {t["kind"] for t in model["transitions"]["items"]}
@@ -190,7 +263,7 @@ def check_model(model: dict, rep: Report) -> None:
 
 def code_problems(fx: dict, codes: dict) -> list[str]:
     out = []
-    for stage in ("mode", "contract", "pool"):
+    for stage in ("mode", "contract", "pool", "actionGuard"):
         r = fx["expected"][stage]
         if r["outcome"] == "fail":
             if r["class"] not in codes["classes"]:
@@ -200,7 +273,7 @@ def code_problems(fx: dict, codes: dict) -> list[str]:
             if r["handoff"] not in codes["handoffs"]:
                 out.append(f"{stage}.handoff {r['handoff']}")
             continue
-        fields = {"mode": {"mode": "mode"},
+        fields = {"mode": {"mode": "mode"}, "actionGuard": {"guard": "guard"},
                   "contract": {"type": "type", "top": "top", "maturity": "maturity", "exec": "exec",
                                "terminal": "terminal", "roleExpected": "roleExpected", "roleDrift": "roleDrift"},
                   "pool": {"pool": "pool", "type": "type", "maturity": "maturity", "minMaturity": "minMaturity"}}[stage]
@@ -308,6 +381,21 @@ def check_fixtures(model: dict, fixtures: list[tuple[pathlib.Path, dict]], rep: 
     rep.check(not lprob and has_none, "coverage: legacy known/unknown/multiple and issues without mode",
               f"problems {lprob}, mode none present={has_none}")
 
+    # Consumer guard: fixtures with an unknown needs:* member expect a blocked guard, and only those.
+    hold_members = set(next(f for f in fams if f["id"] == "hold")["members"])
+    gprob = []
+    for _, fx in fixtures:
+        unknown = any(lab.startswith("needs:") and lab not in hold_members for lab in fx["input"]["labels"])
+        blocked = fx["expected"]["actionGuard"]["outcome"] == "fail"
+        if unknown != blocked:
+            gprob.append(f"{fx['id']}: unknown hold={unknown}, guard blocked={blocked}")
+    blocked_beside_pool = any(fx["expected"]["actionGuard"]["outcome"] == "fail"
+                              and fx["expected"]["pool"]["outcome"] == "ok"
+                              and fx["expected"]["pool"]["pool"] != "none" for _, fx in fixtures)
+    rep.check(not gprob and blocked_beside_pool,
+              "coverage: unknown needs:* blocks the action guard, also beside an open claim pool",
+              f"{gprob}, blocked beside open pool={blocked_beside_pool}")
+
     # Coverage: arbitrary input labels (unknown family members, foreign labels).
     labels = {lab for _, fx in fixtures for lab in fx["input"]["labels"]}
     unknown_by_prefix = {}
@@ -350,6 +438,7 @@ def main() -> int:
 
     if not errs:
         check_model(model, rep)
+        self_test(model, rep)
         if not ferrs:
             check_fixtures(model, fixtures, rep)
 

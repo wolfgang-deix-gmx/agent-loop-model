@@ -42,6 +42,10 @@
       "maturity": "beginner",
       "minMaturity": "none",
       "hold": "needs:upstream"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
     }
   },
   "adr": [

@@ -50,7 +50,7 @@
       },
       {
         "id": "hold", "prefix": "needs:", "members": ["needs:operator", "needs:upstream", "needs:replanning"],
-        "unknownMembers": { "effect": "ignored", "note": "Unknown needs:* labels have no effect except duplicate detection." },
+        "unknownMembers": { "effect": "consumer-guard", "code": "unknown-hold", "note": "Classification ignores unknown needs:* labels except for duplicate detection (evaluator-compatible diagnosis). The actionGuard result blocks every consumer action while one is present (fail-closed, Epic-008 L4/L6)." },
         "adr": "ADR-010 G6, G8"
       },
       {
@@ -88,7 +88,7 @@
     "description": "Set (c): every code a classification result can contain. roleActual echoes input labels and is therefore not a code.",
     "outcome": ["ok", "fail"],
     "mode": ["gate", "legacy", "none"],
-    "classes": ["mode-conflict", "not-gate-mode", "prefix-invalid", "cardinality-invalid"],
+    "classes": ["mode-conflict", "not-gate-mode", "prefix-invalid", "cardinality-invalid", "consumer-guard"],
     "reasons": {
       "mode-conflict": [
         "unknown-mode-label", "marker-duplicate", "gate-with-work-status", "terminal-multiple",
@@ -97,6 +97,7 @@
       ],
       "not-gate-mode": ["mode-legacy", "mode-none"],
       "prefix-invalid": ["unknown-gate", "type-gate-mismatch", "prefix-gap", "missing-created"],
+      "consumer-guard": ["unknown-hold"],
       "cardinality-invalid": [
         "duplicate-label", "maturity-multiple", "maturity-unknown", "maturity-missing",
         "exec-on-parent", "exec-multiple", "exec-unknown", "exec-missing", "terminal-with-role"
@@ -113,6 +114,7 @@
     "roleDrift": ["no", "yes"],
     "pool": ["draft", "co-arch", "operator-wait", "dev", "qat", "re-spec", "none"],
     "minMaturity": ["none", "master"],
+    "guard": ["pass"],
     "serialization": {
       "holds": "Present holds in the fixed order needs:operator, needs:replanning, needs:upstream, joined with ','; 'none' if empty.",
       "roleActual": "Suffixes of all role:* labels, sorted by code point, joined with '+'; 'none' if empty."
@@ -351,13 +353,24 @@
             "minMaturity": { "ref": "minMaturity" }, "hold": { "ref": "holds" }
           } }, "adr": "ADR-010 G4" }
       ]
+    },
+    {
+      "name": "actionGuard",
+      "adr": "ADR-010 G6, G8",
+      "description": "Consumer safety check, independent of the three classification results and without evaluator counterpart. A consumer offers no write and no claim unless actionGuard.outcome is ok. An unknown needs:* label may be a hold this model version does not know; it is treated as blocking (fail-closed, Epic-008 L4/L6).",
+      "rows": [
+        { "id": "G-unknown-hold", "when": { "count": { "select": { "family": "hold", "members": "unknown" }, "op": "gt", "value": 0 } },
+          "result": { "fail": { "class": "consumer-guard", "reason": "unknown-hold", "handoff": "comment-only" } }, "adr": "ADR-010 G6, G8" },
+        { "id": "G-ok", "when": { "always": true }, "result": { "ok": { "guard": { "literal": "pass" } } }, "adr": "ADR-010 G6, G8" }
+      ]
     }
   ],
 
   "results": {
     "mode": "modeResult",
     "contract": "contractResult",
-    "pool": "poolResult"
+    "pool": "poolResult",
+    "actionGuard": "actionGuard"
   },
 
   "claimPools": {
@@ -422,7 +435,8 @@
   },
 
   "transitions": {
-    "description": "Label transitions of a gate issue. staticPrecheck is at most a necessary static pre-check over classification results; it is never an authorisation (Epic-008 L5). Every transition additionally requires its externalPreconditions.",
+    "description": "Label transitions of a gate issue. staticPrecheck is at most a necessary static pre-check over classification results; it is never an authorisation (Epic-008 L5). globalPrecheck applies in addition to every staticPrecheck and every exception. Every transition additionally requires its externalPreconditions.",
+    "globalPrecheck": { "value": { "of": "actionGuard.outcome", "in": ["ok"] } },
     "baseConditions": {
       "gate-ok-open": { "all": [ { "value": { "of": "contractResult.outcome", "in": ["ok"] } }, { "state": { "in": ["OPEN"] } }, { "value": { "of": "terminal", "in": ["none"] } } ] }
     },

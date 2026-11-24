@@ -22,7 +22,7 @@
       }
     },
     "expected": {
-      "type": "object", "required": ["mode", "contract", "pool"], "additionalProperties": false,
+      "type": "object", "required": ["mode", "contract", "pool", "actionGuard"], "additionalProperties": false,
       "properties": {
         "mode": { "oneOf": [ { "$ref": "#/$defs/fail" }, {
           "type": "object", "required": ["outcome", "mode"], "additionalProperties": false,
@@ -43,7 +43,10 @@
             "outcome": { "const": "ok" },
             "pool": { "type": "string" }, "type": { "type": "string" }, "maturity": { "type": "string" },
             "minMaturity": { "type": "string" }, "hold": { "type": "string" }
-          } } ] }
+          } } ] },
+        "actionGuard": { "oneOf": [ { "$ref": "#/$defs/fail" }, {
+          "type": "object", "required": ["outcome", "guard"], "additionalProperties": false,
+          "properties": { "outcome": { "const": "ok" }, "guard": { "type": "string" } } } ] }
       }
     },
     "covers": {

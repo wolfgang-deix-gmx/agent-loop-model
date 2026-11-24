@@ -33,6 +33,10 @@
       "class": "prefix-invalid",
       "reason": "type-gate-mismatch",
       "handoff": "needs-operator"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
     }
   },
   "adr": [

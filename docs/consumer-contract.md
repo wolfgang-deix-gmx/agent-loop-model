@@ -21,6 +21,14 @@ Rules for any consumer of this model, for example a control panel.
   promise that old consumers can handle new combinations.
 - Input labels outside all families are foreign and ignored; unknown members of
   a family are classified by the tables, not guessed.
+- **Action guard (mandatory).** Evaluate the derivation `actionGuard` before any
+  action. While it is not `ok`, offer no write and no claim, whatever the other
+  results say. It fails (`consumer-guard` / `unknown-hold`) for every unknown
+  `needs:*` label: such a label may be a hold added in a later model version.
+  Classification keeps ignoring unknown holds for diagnosis, compatible with the
+  agent-loop evaluator, so a `draft` or `dev` pool can appear beside a blocked
+  guard (fixtures `unknown-hold-ignored`, `unknown-hold-blocks-dev-pool`).
+  `transitions.globalPrecheck` encodes the same rule for every transition.
 
 ## 3. Legacy issues are read-only
 

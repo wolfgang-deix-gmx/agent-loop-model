@@ -29,6 +29,10 @@
       "class": "mode-conflict",
       "reason": "terminal-multiple",
       "handoff": "comment-only"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
     }
   },
   "adr": [

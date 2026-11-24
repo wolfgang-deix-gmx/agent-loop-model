@@ -59,7 +59,7 @@
     },
     "outputCodes": {
       "type": "object",
-      "required": ["outcome", "mode", "classes", "reasons", "handoffs", "type", "top", "maturity", "exec", "holds", "terminal", "roleExpected", "roleDrift", "pool", "minMaturity"],
+      "required": ["outcome", "mode", "classes", "reasons", "handoffs", "type", "top", "maturity", "exec", "holds", "terminal", "roleExpected", "roleDrift", "pool", "minMaturity", "guard"],
       "properties": {
         "description": { "type": "string" },
         "reasons": { "type": "object", "additionalProperties": { "$ref": "#/$defs/codeList" } },
@@ -99,8 +99,8 @@
     "conditionLanguage": { "type": "object", "additionalProperties": { "type": "string" } },
     "derivations": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/derivation" } },
     "results": {
-      "type": "object", "required": ["mode", "contract", "pool"], "additionalProperties": false,
-      "properties": { "mode": { "type": "string" }, "contract": { "type": "string" }, "pool": { "type": "string" } }
+      "type": "object", "required": ["mode", "contract", "pool", "actionGuard"], "additionalProperties": false,
+      "properties": { "mode": { "type": "string" }, "contract": { "type": "string" }, "pool": { "type": "string" }, "actionGuard": { "type": "string" } }
     },
     "claimPools": {
       "type": "object", "required": ["pools", "holdEffects", "minimumMaturity", "ruleTextOnly"], "additionalProperties": false,
@@ -128,9 +128,10 @@
         "properties": { "text": { "type": "string" }, "adr": { "$ref": "#/$defs/adr" } } }
     },
     "transitions": {
-      "type": "object", "required": ["baseConditions", "items"], "additionalProperties": false,
+      "type": "object", "required": ["baseConditions", "globalPrecheck", "items"], "additionalProperties": false,
       "properties": {
         "description": { "type": "string" },
+        "globalPrecheck": { "$ref": "#/$defs/condition" },
         "baseConditions": { "type": "object", "additionalProperties": { "$ref": "#/$defs/condition" } },
         "items": { "type": "array", "items": { "$ref": "#/$defs/transition" } }
       }
@@ -157,7 +158,7 @@
         "unknownMembers": {
           "type": "object", "required": ["effect"], "additionalProperties": false,
           "properties": {
-            "effect": { "enum": ["mode-conflict", "prefix-invalid", "cardinality-invalid", "ignored", "diagnostic"] },
+            "effect": { "enum": ["mode-conflict", "prefix-invalid", "cardinality-invalid", "consumer-guard", "diagnostic"] },
             "code": { "type": "string" },
             "withoutMarker": { "type": "string" },
             "note": { "type": "string" }

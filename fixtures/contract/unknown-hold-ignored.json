@@ -1,7 +1,7 @@
 {
   "$schema": "../../schema/fixture.schema.json",
   "id": "unknown-hold-ignored",
-  "description": "Unknown needs:* members are ignored.",
+  "description": "Classification ignores an unknown needs:* member, but the action guard blocks every consumer action.",
   "inputKind": "set",
   "input": {
     "state": "OPEN",
@@ -36,6 +36,12 @@
       "maturity": "none",
       "minMaturity": "master",
       "hold": "none"
+    },
+    "actionGuard": {
+      "outcome": "fail",
+      "class": "consumer-guard",
+      "reason": "unknown-hold",
+      "handoff": "comment-only"
     }
   },
   "adr": [

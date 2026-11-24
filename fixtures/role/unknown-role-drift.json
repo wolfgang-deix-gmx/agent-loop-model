@@ -35,6 +35,10 @@
       "maturity": "none",
       "minMaturity": "master",
       "hold": "none"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
     }
   },
   "adr": [

@@ -27,6 +27,10 @@
       "class": "mode-conflict",
       "reason": "role-without-status",
       "handoff": "comment-only"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
     }
   },
   "adr": [

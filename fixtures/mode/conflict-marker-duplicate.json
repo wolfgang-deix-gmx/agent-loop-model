@@ -29,6 +29,10 @@
       "class": "mode-conflict",
       "reason": "marker-duplicate",
       "handoff": "comment-only"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
     }
   },
   "adr": [
