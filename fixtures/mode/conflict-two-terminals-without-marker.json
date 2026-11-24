@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "conflict-two-terminals-without-marker",
+  "description": "Two terminal statuses without marker are two legacy statuses.",
+  "inputKind": "set",
+  "input": {
+    "state": "CLOSED",
+    "labels": [
+      "status:finished",
+      "status:abandoned"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "legacy-status-multiple",
+      "handoff": "comment-only"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "legacy-status-multiple",
+      "handoff": "comment-only"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "legacy-status-multiple",
+      "handoff": "comment-only"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G1"
+  ],
+  "covers": {
+    "legacy": "multiple"
+  }
+}

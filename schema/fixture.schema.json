@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/wolfgang-deix-gmx/agent-loop-model/schema/fixture.schema.json",
+  "title": "Gate model fixture",
+  "description": "One example input with its expected classification. Input labels may be arbitrary strings; they do not become vocabulary.",
+  "type": "object",
+  "required": ["id", "description", "inputKind", "input", "expected", "adr"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "description": { "type": "string", "minLength": 1 },
+    "inputKind": {
+      "description": "set: a GitHub label set (no duplicates). evaluator-sequence: an artificial evaluator input that may contain duplicates; not relevant for consumers.",
+      "enum": ["set", "evaluator-sequence"]
+    },
+    "input": {
+      "type": "object", "required": ["state", "labels"], "additionalProperties": false,
+      "properties": {
+        "state": { "enum": ["OPEN", "CLOSED"] },
+        "labels": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "expected": {
+      "type": "object", "required": ["mode", "contract", "pool", "actionGuard"], "additionalProperties": false,
+      "properties": {
+        "mode": { "oneOf": [ { "$ref": "#/$defs/fail" }, {
+          "type": "object", "required": ["outcome", "mode"], "additionalProperties": false,
+          "properties": { "outcome": { "const": "ok" }, "mode": { "type": "string" } } } ] },
+        "contract": { "oneOf": [ { "$ref": "#/$defs/fail" }, {
+          "type": "object",
+          "required": ["outcome", "type", "top", "maturity", "exec", "holds", "terminal", "roleExpected", "roleActual", "roleDrift"],
+          "additionalProperties": false,
+          "properties": {
+            "outcome": { "const": "ok" },
+            "type": { "type": "string" }, "top": { "type": "string" }, "maturity": { "type": "string" },
+            "exec": { "type": "string" }, "holds": { "type": "string" }, "terminal": { "type": "string" },
+            "roleExpected": { "type": "string" }, "roleActual": { "type": "string" }, "roleDrift": { "type": "string" }
+          } } ] },
+        "pool": { "oneOf": [ { "$ref": "#/$defs/fail" }, {
+          "type": "object", "required": ["outcome", "pool", "type", "maturity", "minMaturity", "hold"], "additionalProperties": false,
+          "properties": {
+            "outcome": { "const": "ok" },
+            "pool": { "type": "string" }, "type": { "type": "string" }, "maturity": { "type": "string" },
+            "minMaturity": { "type": "string" }, "hold": { "type": "string" }
+          } } ] },
+        "actionGuard": { "oneOf": [ { "$ref": "#/$defs/fail" }, {
+          "type": "object", "required": ["outcome", "guard"], "additionalProperties": false,
+          "properties": { "outcome": { "const": "ok" }, "guard": { "type": "string" } } } ] }
+      }
+    },
+    "covers": {
+      "description": "Coverage tags that cannot be read from the expectation alone.",
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "roleRow": { "type": "string" },
+        "legacy": { "enum": ["known", "unknown", "multiple"] }
+      }
+    },
+    "orderGroup": {
+      "description": "Fixtures of one group carry the same label multiset in different order and must have identical expectations.",
+      "type": "string"
+    },
+    "adr": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^ADR-010 " } },
+    "note": { "type": "string" }
+  },
+  "allOf": [
+    { "if": { "properties": { "inputKind": { "const": "set" } } },
+      "then": { "properties": { "input": { "properties": { "labels": { "uniqueItems": true } } } } } }
+  ],
+  "$defs": {
+    "fail": {
+      "type": "object", "required": ["outcome", "class", "reason", "handoff"], "additionalProperties": false,
+      "properties": {
+        "outcome": { "const": "fail" },
+        "class": { "type": "string" }, "reason": { "type": "string" }, "handoff": { "type": "string" }
+      }
+    }
+  }
+}

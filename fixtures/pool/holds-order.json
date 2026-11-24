@@ -1,0 +1,51 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "holds-order",
+  "description": "Holds are reported in fixed order.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "maturity:advanced",
+      "needs:replanning",
+      "needs:operator",
+      "role:architect"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "drafted",
+      "maturity": "advanced",
+      "exec": "none",
+      "holds": "needs:operator,needs:replanning",
+      "terminal": "none",
+      "roleExpected": "architect",
+      "roleActual": "architect",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "none",
+      "type": "task",
+      "maturity": "advanced",
+      "minMaturity": "none",
+      "hold": "needs:operator,needs:replanning"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G6"
+  ]
+}

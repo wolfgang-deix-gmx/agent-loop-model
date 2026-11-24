@@ -1,0 +1,52 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "missing-role-drift",
+  "description": "A missing role is drift, not an error.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "gate:specified",
+      "gate:promoted",
+      "gate:implemented",
+      "maturity:master",
+      "exec:agent"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "implemented",
+      "maturity": "master",
+      "exec": "agent",
+      "holds": "none",
+      "terminal": "none",
+      "roleExpected": "reviewer",
+      "roleActual": "none",
+      "roleDrift": "yes"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "qat",
+      "type": "task",
+      "maturity": "master",
+      "minMaturity": "none",
+      "hold": "none"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G8"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "maturity-missing",
+  "description": "No maturity from drafted on.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "role:architect"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "cardinality-invalid",
+      "reason": "maturity-missing",
+      "handoff": "comment-only"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "cardinality-invalid",
+      "reason": "maturity-missing",
+      "handoff": "comment-only"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G3",
+    "ADR-010 G8"
+  ]
+}

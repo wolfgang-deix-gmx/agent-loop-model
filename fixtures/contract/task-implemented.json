@@ -1,0 +1,59 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "task-implemented",
+  "description": "Task implemented.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "gate:specified",
+      "gate:promoted",
+      "gate:implemented",
+      "maturity:master",
+      "exec:agent",
+      "role:reviewer"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "implemented",
+      "maturity": "master",
+      "exec": "agent",
+      "holds": "none",
+      "terminal": "none",
+      "roleExpected": "reviewer",
+      "roleActual": "reviewer",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "qat",
+      "type": "task",
+      "maturity": "master",
+      "minMaturity": "none",
+      "hold": "none"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G2",
+    "ADR-010 G4",
+    "ADR-010 G5",
+    "ADR-010 G8"
+  ],
+  "covers": {
+    "roleRow": "R8-implemented"
+  }
+}

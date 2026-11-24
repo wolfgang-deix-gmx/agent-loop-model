@@ -1,0 +1,50 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "two-roles-drift",
+  "description": "Two roles are drift.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "maturity:master",
+      "role:reviewer",
+      "role:architect"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "drafted",
+      "maturity": "master",
+      "exec": "none",
+      "holds": "none",
+      "terminal": "none",
+      "roleExpected": "architect",
+      "roleActual": "architect+reviewer",
+      "roleDrift": "yes"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "co-arch",
+      "type": "task",
+      "maturity": "master",
+      "minMaturity": "none",
+      "hold": "none"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G8"
+  ]
+}

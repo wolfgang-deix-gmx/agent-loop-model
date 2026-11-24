@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "conflict-gate-without-marker",
+  "description": "gate:* without mode:gate.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "gate:created"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "gate-vocab-without-marker",
+      "handoff": "comment-only"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "gate-vocab-without-marker",
+      "handoff": "comment-only"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "gate-vocab-without-marker",
+      "handoff": "comment-only"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G1"
+  ]
+}

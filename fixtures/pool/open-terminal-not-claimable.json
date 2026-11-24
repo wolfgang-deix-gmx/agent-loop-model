@@ -1,0 +1,52 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "open-terminal-not-claimable",
+  "description": "OPEN with terminal has no pool.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "gate:specified",
+      "gate:promoted",
+      "maturity:beginner",
+      "exec:agent",
+      "status:abandoned"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "promoted",
+      "maturity": "beginner",
+      "exec": "agent",
+      "holds": "none",
+      "terminal": "open-recovery",
+      "roleExpected": "none",
+      "roleActual": "none",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "none",
+      "type": "task",
+      "maturity": "beginner",
+      "minMaturity": "none",
+      "hold": "none"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G7"
+  ]
+}

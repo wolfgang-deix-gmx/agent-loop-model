@@ -1,0 +1,40 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "legacy-terminal-merged",
+  "description": "Closed legacy issue with status:merged.",
+  "inputKind": "set",
+  "input": {
+    "state": "CLOSED",
+    "labels": [
+      "status:merged"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "legacy"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "not-gate-mode",
+      "reason": "mode-legacy",
+      "handoff": "none"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "not-gate-mode",
+      "reason": "mode-legacy",
+      "handoff": "none"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G1"
+  ],
+  "covers": {
+    "legacy": "known"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "needs-upstream-keeps-role",
+  "description": "needs:upstream leaves the projected role unchanged.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "gate:specified",
+      "gate:promoted",
+      "gate:implemented",
+      "maturity:beginner",
+      "exec:agent",
+      "needs:upstream",
+      "role:reviewer"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "implemented",
+      "maturity": "beginner",
+      "exec": "agent",
+      "holds": "needs:upstream",
+      "terminal": "none",
+      "roleExpected": "reviewer",
+      "roleActual": "reviewer",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "none",
+      "type": "task",
+      "maturity": "beginner",
+      "minMaturity": "none",
+      "hold": "needs:upstream"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G6",
+    "ADR-010 G8"
+  ]
+}

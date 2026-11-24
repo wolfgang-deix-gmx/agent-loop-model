@@ -1,0 +1,58 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "final",
+  "description": "CLOSED with one terminal is final.",
+  "inputKind": "set",
+  "input": {
+    "state": "CLOSED",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "gate:specified",
+      "gate:promoted",
+      "gate:implemented",
+      "gate:accepted",
+      "maturity:master",
+      "exec:agent",
+      "status:finished"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "accepted",
+      "maturity": "master",
+      "exec": "agent",
+      "holds": "none",
+      "terminal": "final",
+      "roleExpected": "none",
+      "roleActual": "none",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "none",
+      "type": "task",
+      "maturity": "master",
+      "minMaturity": "none",
+      "hold": "none"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G7",
+    "ADR-010 G8"
+  ],
+  "covers": {
+    "roleRow": "R1-terminal"
+  }
+}

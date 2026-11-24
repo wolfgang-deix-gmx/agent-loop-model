@@ -1,0 +1,45 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "type-mismatch-parent-promoted",
+  "description": "Parent with gate:promoted.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "epic",
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "gate:specified",
+      "gate:promoted",
+      "maturity:master",
+      "role:operator"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "prefix-invalid",
+      "reason": "type-gate-mismatch",
+      "handoff": "needs-operator"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "prefix-invalid",
+      "reason": "type-gate-mismatch",
+      "handoff": "needs-operator"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G1",
+    "ADR-010 G2"
+  ]
+}

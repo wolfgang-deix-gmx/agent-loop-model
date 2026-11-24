@@ -1,0 +1,44 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "exec-multiple",
+  "description": "Two exec labels.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "maturity:advanced",
+      "exec:agent",
+      "exec:operator",
+      "role:architect"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "cardinality-invalid",
+      "reason": "exec-multiple",
+      "handoff": "comment-only"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "cardinality-invalid",
+      "reason": "exec-multiple",
+      "handoff": "comment-only"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G4",
+    "ADR-010 G8"
+  ]
+}

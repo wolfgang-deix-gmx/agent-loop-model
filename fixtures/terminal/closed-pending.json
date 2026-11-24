@@ -1,0 +1,54 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "closed-pending",
+  "description": "CLOSED without terminal after merge.",
+  "inputKind": "set",
+  "input": {
+    "state": "CLOSED",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "gate:specified",
+      "gate:promoted",
+      "gate:implemented",
+      "gate:accepted",
+      "maturity:master",
+      "exec:agent",
+      "role:operator"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "accepted",
+      "maturity": "master",
+      "exec": "agent",
+      "holds": "none",
+      "terminal": "closed-pending",
+      "roleExpected": "operator",
+      "roleActual": "operator",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "none",
+      "type": "task",
+      "maturity": "master",
+      "minMaturity": "none",
+      "hold": "none"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G7"
+  ]
+}

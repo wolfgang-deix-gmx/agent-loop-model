@@ -1,0 +1,54 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "replanning-parent",
+  "description": "needs:replanning on an activated parent.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "epic",
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "gate:specified",
+      "gate:activated",
+      "maturity:master",
+      "needs:replanning",
+      "role:architect"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "parent",
+      "top": "activated",
+      "maturity": "master",
+      "exec": "none",
+      "holds": "needs:replanning",
+      "terminal": "none",
+      "roleExpected": "architect",
+      "roleActual": "architect",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "re-spec",
+      "type": "parent",
+      "maturity": "master",
+      "minMaturity": "none",
+      "hold": "needs:replanning"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G6",
+    "ADR-010 G8"
+  ]
+}

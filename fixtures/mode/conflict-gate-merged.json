@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "conflict-gate-merged",
+  "description": "status:merged is no gate terminal.",
+  "inputKind": "set",
+  "input": {
+    "state": "CLOSED",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "status:merged"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "gate-with-work-status",
+      "handoff": "comment-only"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "gate-with-work-status",
+      "handoff": "comment-only"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "gate-with-work-status",
+      "handoff": "comment-only"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G1",
+    "ADR-010 G7"
+  ]
+}

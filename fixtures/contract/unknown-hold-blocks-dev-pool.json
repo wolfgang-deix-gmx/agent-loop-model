@@ -1,0 +1,56 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "unknown-hold-blocks-dev-pool",
+  "description": "A future hold unknown to this model version: pool dev, but no consumer action.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "gate:specified",
+      "gate:promoted",
+      "maturity:beginner",
+      "exec:agent",
+      "needs:security-review",
+      "role:coder"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "promoted",
+      "maturity": "beginner",
+      "exec": "agent",
+      "holds": "none",
+      "terminal": "none",
+      "roleExpected": "coder",
+      "roleActual": "coder",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "dev",
+      "type": "task",
+      "maturity": "beginner",
+      "minMaturity": "none",
+      "hold": "none"
+    },
+    "actionGuard": {
+      "outcome": "fail",
+      "class": "consumer-guard",
+      "reason": "unknown-hold",
+      "handoff": "comment-only"
+    }
+  },
+  "adr": [
+    "ADR-010 G6",
+    "ADR-010 G8"
+  ]
+}

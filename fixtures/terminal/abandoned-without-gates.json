@@ -1,0 +1,46 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "abandoned-without-gates",
+  "description": "abandoned codes no gate precondition.",
+  "inputKind": "set",
+  "input": {
+    "state": "CLOSED",
+    "labels": [
+      "mode:gate",
+      "status:abandoned"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "none",
+      "maturity": "none",
+      "exec": "none",
+      "holds": "none",
+      "terminal": "final",
+      "roleExpected": "none",
+      "roleActual": "none",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "none",
+      "type": "task",
+      "maturity": "none",
+      "minMaturity": "none",
+      "hold": "none"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G7"
+  ]
+}

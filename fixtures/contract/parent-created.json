@@ -1,0 +1,51 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "parent-created",
+  "description": "Parent at created.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "epic",
+      "mode:gate",
+      "gate:created",
+      "role:architect"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "parent",
+      "top": "created",
+      "maturity": "none",
+      "exec": "none",
+      "holds": "none",
+      "terminal": "none",
+      "roleExpected": "architect",
+      "roleActual": "architect",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "draft",
+      "type": "parent",
+      "maturity": "none",
+      "minMaturity": "master",
+      "hold": "none"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G2",
+    "ADR-010 G3",
+    "ADR-010 G4",
+    "ADR-010 G8"
+  ]
+}

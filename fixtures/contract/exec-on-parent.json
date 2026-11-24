@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "exec-on-parent",
+  "description": "A parent never carries exec:*.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "epic",
+      "mode:gate",
+      "gate:created",
+      "exec:agent",
+      "role:architect"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "cardinality-invalid",
+      "reason": "exec-on-parent",
+      "handoff": "comment-only"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "cardinality-invalid",
+      "reason": "exec-on-parent",
+      "handoff": "comment-only"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G4",
+    "ADR-010 G8"
+  ]
+}

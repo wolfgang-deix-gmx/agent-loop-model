@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "conflict-unknown-mode-label",
+  "description": "Unknown mode:* member.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:legacy",
+      "status:ready-for-dev",
+      "role:coder"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "unknown-mode-label",
+      "handoff": "comment-only"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "unknown-mode-label",
+      "handoff": "comment-only"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "unknown-mode-label",
+      "handoff": "comment-only"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G1"
+  ]
+}

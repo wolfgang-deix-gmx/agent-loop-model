@@ -1,0 +1,300 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/wolfgang-deix-gmx/agent-loop-model/schema/gate-model.schema.json",
+  "title": "Agent loop gate model",
+  "description": "Schema of model/gate-model.json. Defines the structure and the small condition language of the decision tables.",
+  "type": "object",
+  "required": ["meta", "issueTypes", "issueStates", "vocabulary", "legacyStatuses", "outputCodes", "cardinality", "gateChains", "conditionLanguage", "derivations", "results", "claimPools", "externalPreconditions", "postWrite", "transitions"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "meta": {
+      "type": "object",
+      "required": ["modelVersion", "releaseStatus", "normative", "schemaVersion", "source"],
+      "additionalProperties": false,
+      "properties": {
+        "modelVersion": { "type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?$" },
+        "releaseStatus": { "enum": ["unreleased", "pre-release", "released"] },
+        "normative": { "type": "boolean" },
+        "schemaVersion": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "ruleTextIsNormative": { "const": false },
+        "source": {
+          "type": "object",
+          "required": ["adr", "wdeixCommit", "agentLoopCommit"],
+          "additionalProperties": false,
+          "properties": {
+            "adr": { "type": "string" },
+            "wdeixCommit": { "$ref": "#/$defs/sha" },
+            "agentLoopCommit": { "$ref": "#/$defs/sha" },
+            "evaluator": { "type": "string" },
+            "legacyStatusSource": { "type": "string" }
+          }
+        }
+      }
+    },
+    "issueTypes": {
+      "type": "array", "minItems": 2,
+      "items": { "type": "object", "required": ["id", "rule", "adr"], "additionalProperties": false,
+        "properties": { "id": { "enum": ["task", "parent"] }, "rule": { "type": "string" }, "adr": { "$ref": "#/$defs/adr" } } }
+    },
+    "issueStates": { "const": ["OPEN", "CLOSED"] },
+    "vocabulary": {
+      "type": "object", "required": ["families", "foreignLabels"], "additionalProperties": false,
+      "properties": {
+        "description": { "type": "string" },
+        "foreignLabels": { "type": "string" },
+        "families": { "type": "array", "items": { "$ref": "#/$defs/family" } }
+      }
+    },
+    "legacyStatuses": {
+      "type": "object", "required": ["source", "statuses", "adr"], "additionalProperties": false,
+      "properties": {
+        "description": { "type": "string" },
+        "source": { "type": "string" },
+        "statuses": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^status:[a-z-]+$" } },
+        "adr": { "$ref": "#/$defs/adr" }
+      }
+    },
+    "outputCodes": {
+      "type": "object",
+      "required": ["outcome", "mode", "classes", "reasons", "handoffs", "type", "top", "maturity", "exec", "holds", "terminal", "roleExpected", "roleDrift", "pool", "minMaturity", "guard"],
+      "properties": {
+        "description": { "type": "string" },
+        "reasons": { "type": "object", "additionalProperties": { "$ref": "#/$defs/codeList" } },
+        "serialization": { "type": "object", "additionalProperties": { "type": "string" } }
+      },
+      "additionalProperties": { "$ref": "#/$defs/codeList" }
+    },
+    "cardinality": {
+      "type": "object", "required": ["rules"], "additionalProperties": false,
+      "properties": {
+        "description": { "type": "string" },
+        "rules": { "type": "array", "items": {
+          "type": "object", "required": ["family", "types", "stage", "enforcement", "adr"], "additionalProperties": false,
+          "properties": {
+            "family": { "type": "string" },
+            "types": { "type": "array", "items": { "enum": ["task", "parent"] } },
+            "stage": { "type": "string" },
+            "min": { "type": "integer", "minimum": 0 },
+            "max": { "type": "integer", "minimum": 0 },
+            "rule": { "type": "string" },
+            "enforcement": { "enum": ["classification", "diagnostic"] },
+            "note": { "type": "string" },
+            "adr": { "$ref": "#/$defs/adr" }
+          } } }
+      }
+    },
+    "gateChains": {
+      "type": "object", "required": ["task", "parent", "adr", "invariants"], "additionalProperties": false,
+      "properties": {
+        "task": { "$ref": "#/$defs/labelList" },
+        "parent": { "$ref": "#/$defs/labelList" },
+        "adr": { "$ref": "#/$defs/adr" },
+        "invariants": { "type": "array", "items": { "type": "object", "required": ["id", "rule", "enforcedBy", "adr"], "additionalProperties": false,
+          "properties": { "id": { "type": "string" }, "rule": { "type": "string" }, "enforcedBy": { "type": "string" }, "adr": { "$ref": "#/$defs/adr" } } } }
+      }
+    },
+    "conditionLanguage": { "type": "object", "additionalProperties": { "type": "string" } },
+    "derivations": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/derivation" } },
+    "results": {
+      "type": "object", "required": ["mode", "contract", "pool", "actionGuard"], "additionalProperties": false,
+      "properties": { "mode": { "type": "string" }, "contract": { "type": "string" }, "pool": { "type": "string" }, "actionGuard": { "type": "string" } }
+    },
+    "claimPools": {
+      "type": "object", "required": ["pools", "holdEffects", "minimumMaturity", "ruleTextOnly"], "additionalProperties": false,
+      "properties": {
+        "description": { "type": "string" },
+        "pools": { "type": "array", "items": { "type": "object", "required": ["id", "reservation", "adr"], "additionalProperties": false,
+          "properties": { "id": { "type": "string" }, "reached": { "type": "string" }, "notReached": { "type": "string" }, "reservation": { "type": "string" }, "adr": { "$ref": "#/$defs/adr" } } } },
+        "holdEffects": { "type": "array", "items": { "type": "object", "required": ["hold", "effect", "adr"], "additionalProperties": false,
+          "properties": { "hold": { "type": "string" }, "effect": { "type": "string" }, "adr": { "$ref": "#/$defs/adr" } } } },
+        "minimumMaturity": { "type": "object", "required": ["rule", "adr"], "additionalProperties": false,
+          "properties": { "rule": { "type": "string" }, "adr": { "$ref": "#/$defs/adr" } } },
+        "ruleTextOnly": { "type": "array", "items": { "$ref": "#/$defs/textRule" } }
+      }
+    },
+    "externalPreconditions": {
+      "type": "object", "required": ["catalog"], "additionalProperties": false,
+      "properties": {
+        "description": { "type": "string" },
+        "catalog": { "type": "array", "items": { "$ref": "#/$defs/textRule" } }
+      }
+    },
+    "postWrite": {
+      "type": "object",
+      "additionalProperties": { "type": "object", "required": ["text", "adr"], "additionalProperties": false,
+        "properties": { "text": { "type": "string" }, "adr": { "$ref": "#/$defs/adr" } } }
+    },
+    "transitions": {
+      "type": "object", "required": ["baseConditions", "globalPrecheck", "items"], "additionalProperties": false,
+      "properties": {
+        "description": { "type": "string" },
+        "globalPrecheck": { "$ref": "#/$defs/condition" },
+        "baseConditions": { "type": "object", "additionalProperties": { "$ref": "#/$defs/condition" } },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/transition" } }
+      }
+    }
+  },
+
+  "$defs": {
+    "sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "adr": { "type": "string", "pattern": "^ADR-010 " },
+    "label": { "type": "string", "minLength": 1 },
+    "labelList": { "type": "array", "items": { "$ref": "#/$defs/label" } },
+    "codeList": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+    "textRule": {
+      "type": "object", "required": ["id", "text", "adr"], "additionalProperties": false,
+      "properties": { "id": { "type": "string" }, "text": { "type": "string" }, "adr": { "$ref": "#/$defs/adr" } }
+    },
+    "family": {
+      "type": "object", "required": ["id", "members", "adr"], "additionalProperties": false,
+      "properties": {
+        "id": { "enum": ["mode", "gate", "maturity", "exec", "hold", "terminal", "role", "type"] },
+        "prefix": { "type": "string", "pattern": "^[a-z]+:$" },
+        "exact": { "type": "string" },
+        "members": { "$ref": "#/$defs/labelList" },
+        "unknownMembers": {
+          "type": "object", "required": ["effect"], "additionalProperties": false,
+          "properties": {
+            "effect": { "enum": ["mode-conflict", "prefix-invalid", "cardinality-invalid", "consumer-guard", "diagnostic"] },
+            "code": { "type": "string" },
+            "withoutMarker": { "type": "string" },
+            "note": { "type": "string" }
+          }
+        },
+        "note": { "type": "string" },
+        "adr": { "$ref": "#/$defs/adr" }
+      },
+      "oneOf": [ { "required": ["prefix"] }, { "required": ["exact"] } ]
+    },
+
+    "selector": {
+      "description": "Picks labels of the input. family+members: all labels of the family (by prefix or exact name), only its known members, or only unknown members. labels: an explicit list. set: a named set (legacyStatuses). anyOf: union; each input label occurrence counts at most once.",
+      "oneOf": [
+        { "type": "object", "required": ["family", "members"], "additionalProperties": false,
+          "properties": { "family": { "type": "string" }, "members": { "enum": ["all", "known", "unknown"] } } },
+        { "type": "object", "required": ["labels"], "additionalProperties": false,
+          "properties": { "labels": { "$ref": "#/$defs/labelList" } } },
+        { "type": "object", "required": ["set"], "additionalProperties": false,
+          "properties": { "set": { "enum": ["legacyStatuses"] } } },
+        { "type": "object", "required": ["anyOf"], "additionalProperties": false,
+          "properties": { "anyOf": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/selector" } } } }
+      ]
+    },
+
+    "condition": {
+      "description": "has: label present. count: number of selected label occurrences compared with a value. duplicates: some selected label occurs more than once (evaluator-sequence inputs only). state: issue state in list. value: derived value (dotted path for result fields) in list; false if the path does not exist. sameValue: two derived values are equal. ref: a named base condition. always: true. all/any/not: combinators.",
+      "oneOf": [
+        { "type": "object", "required": ["has"], "additionalProperties": false, "properties": { "has": { "$ref": "#/$defs/label" } } },
+        { "type": "object", "required": ["count"], "additionalProperties": false, "properties": { "count": {
+          "type": "object", "required": ["select", "op", "value"], "additionalProperties": false,
+          "properties": { "select": { "$ref": "#/$defs/selector" }, "op": { "enum": ["eq", "ne", "lt", "le", "gt", "ge"] }, "value": { "type": "integer", "minimum": 0 } } } } },
+        { "type": "object", "required": ["duplicates"], "additionalProperties": false, "properties": { "duplicates": {
+          "type": "object", "required": ["select"], "additionalProperties": false, "properties": { "select": { "$ref": "#/$defs/selector" } } } } },
+        { "type": "object", "required": ["state"], "additionalProperties": false, "properties": { "state": {
+          "type": "object", "required": ["in"], "additionalProperties": false,
+          "properties": { "in": { "type": "array", "minItems": 1, "items": { "enum": ["OPEN", "CLOSED"] } } } } } },
+        { "type": "object", "required": ["value"], "additionalProperties": false, "properties": { "value": {
+          "type": "object", "required": ["of", "in"], "additionalProperties": false,
+          "properties": { "of": { "type": "string", "pattern": "^[A-Za-z]+(\\.[A-Za-z]+)?$" }, "in": { "type": "array", "minItems": 1, "items": { "type": "string" } } } } } },
+        { "type": "object", "required": ["sameValue"], "additionalProperties": false, "properties": { "sameValue": {
+          "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "string" } } } },
+        { "type": "object", "required": ["ref"], "additionalProperties": false, "properties": { "ref": { "type": "string" } } },
+        { "type": "object", "required": ["always"], "additionalProperties": false, "properties": { "always": { "const": true } } },
+        { "type": "object", "required": ["all"], "additionalProperties": false, "properties": { "all": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/condition" } } } },
+        { "type": "object", "required": ["any"], "additionalProperties": false, "properties": { "any": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/condition" } } } },
+        { "type": "object", "required": ["not"], "additionalProperties": false, "properties": { "not": { "$ref": "#/$defs/condition" } } }
+      ]
+    },
+
+    "valueExpr": {
+      "description": "literal: constant. ref: earlier derived value. suffix: suffix after the family prefix of the single present member, or empty. highestPresent: suffix of the last gate of gateChains[<derived chainsBy>] present in the input, or empty. joinPresent: present labels of the list in list order, joined. joinSuffixes: suffixes of selected labels, sorted by code point, joined.",
+      "oneOf": [
+        { "type": "object", "required": ["literal"], "additionalProperties": false, "properties": { "literal": { "type": "string" } } },
+        { "type": "object", "required": ["ref"], "additionalProperties": false, "properties": { "ref": { "type": "string" } } },
+        { "type": "object", "required": ["suffix"], "additionalProperties": false, "properties": { "suffix": {
+          "type": "object", "required": ["family", "empty"], "additionalProperties": false,
+          "properties": { "family": { "type": "string" }, "empty": { "type": "string" } } } } },
+        { "type": "object", "required": ["highestPresent"], "additionalProperties": false, "properties": { "highestPresent": {
+          "type": "object", "required": ["chainsBy", "empty"], "additionalProperties": false,
+          "properties": { "chainsBy": { "type": "string" }, "empty": { "type": "string" } } } } },
+        { "type": "object", "required": ["joinPresent"], "additionalProperties": false, "properties": { "joinPresent": {
+          "type": "object", "required": ["labels", "separator", "empty"], "additionalProperties": false,
+          "properties": { "labels": { "$ref": "#/$defs/labelList" }, "separator": { "type": "string" }, "empty": { "type": "string" } } } } },
+        { "type": "object", "required": ["joinSuffixes"], "additionalProperties": false, "properties": { "joinSuffixes": {
+          "type": "object", "required": ["select", "order", "separator", "empty"], "additionalProperties": false,
+          "properties": { "select": { "$ref": "#/$defs/selector" }, "order": { "const": "codepoint" }, "separator": { "type": "string" }, "empty": { "type": "string" } } } } }
+      ]
+    },
+
+    "rowResult": {
+      "oneOf": [
+        { "type": "object", "required": ["value"], "additionalProperties": false, "properties": { "value": { "$ref": "#/$defs/valueExpr" } } },
+        { "type": "object", "required": ["ok"], "additionalProperties": false, "properties": { "ok": {
+          "type": "object", "minProperties": 1, "additionalProperties": { "$ref": "#/$defs/valueExpr" } } } },
+        { "type": "object", "required": ["fail"], "additionalProperties": false, "properties": { "fail": {
+          "type": "object", "required": ["class", "reason", "handoff"], "additionalProperties": false,
+          "properties": { "class": { "type": "string" }, "reason": { "type": "string" }, "handoff": { "type": "string" } } } } },
+        { "type": "object", "required": ["propagate"], "additionalProperties": false, "properties": { "propagate": { "type": "string" } } }
+      ]
+    },
+
+    "row": {
+      "type": "object", "required": ["id", "when", "result", "adr"], "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "when": { "$ref": "#/$defs/condition" },
+        "result": { "$ref": "#/$defs/rowResult" },
+        "adr": { "$ref": "#/$defs/adr" },
+        "note": { "type": "string" }
+      }
+    },
+
+    "derivation": {
+      "type": "object", "required": ["name", "adr"], "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Za-z]+$" },
+        "adr": { "$ref": "#/$defs/adr" },
+        "description": { "type": "string" },
+        "rows": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/row" } },
+        "expr": { "$ref": "#/$defs/valueExpr" }
+      },
+      "oneOf": [ { "required": ["rows"] }, { "required": ["expr"] } ]
+    },
+
+    "transition": {
+      "type": "object",
+      "required": ["id", "kind", "actors", "operatorOnly", "labelChanges", "staticPrecheck", "externalPreconditions", "postWrite", "adr"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "kind": { "enum": ["create", "gate-set", "gate-withdraw", "hold-set", "hold-release", "terminal-set", "maturity-change", "exec-change", "recovery"] },
+        "actors": { "type": "array", "minItems": 1, "items": { "enum": ["architect", "coder", "reviewer", "operator"] } },
+        "operatorOnly": { "type": "boolean" },
+        "labelChanges": {
+          "type": "object", "additionalProperties": false, "minProperties": 1,
+          "properties": {
+            "add": { "$ref": "#/$defs/labelList" },
+            "remove": { "$ref": "#/$defs/labelList" },
+            "replace": { "type": "object", "required": ["family"], "additionalProperties": false, "properties": { "family": { "type": "string" } } },
+            "operatorDefined": { "const": true }
+          }
+        },
+        "cascade": { "$ref": "#/$defs/labelList" },
+        "triggers": { "type": "array", "items": { "type": "string" } },
+        "staticPrecheck": { "$ref": "#/$defs/condition" },
+        "exceptions": { "type": "array", "items": {
+          "type": "object", "required": ["id", "text", "adr"], "additionalProperties": false,
+          "properties": { "id": { "type": "string" }, "text": { "type": "string" }, "staticPrecheck": { "$ref": "#/$defs/condition" }, "adr": { "$ref": "#/$defs/adr" } } } },
+        "externalPreconditions": { "type": "array", "items": { "type": "string" } },
+        "postWrite": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "note": { "type": "string" },
+        "adr": { "$ref": "#/$defs/adr" }
+      },
+      "if": { "properties": { "operatorOnly": { "const": true } } },
+      "then": { "properties": { "actors": { "const": ["operator"] } } }
+    }
+  }
+}

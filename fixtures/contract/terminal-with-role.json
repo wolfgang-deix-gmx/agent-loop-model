@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "terminal-with-role",
+  "description": "An issue with terminal carries no role.",
+  "inputKind": "set",
+  "input": {
+    "state": "CLOSED",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "status:finished",
+      "role:operator"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "cardinality-invalid",
+      "reason": "terminal-with-role",
+      "handoff": "comment-only"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "cardinality-invalid",
+      "reason": "terminal-with-role",
+      "handoff": "comment-only"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G7",
+    "ADR-010 G8"
+  ]
+}

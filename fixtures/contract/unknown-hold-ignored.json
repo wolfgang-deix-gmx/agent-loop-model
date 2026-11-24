@@ -1,0 +1,51 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "unknown-hold-ignored",
+  "description": "Classification ignores an unknown needs:* member, but the action guard blocks every consumer action.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "needs:foo",
+      "role:architect"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "created",
+      "maturity": "none",
+      "exec": "none",
+      "holds": "none",
+      "terminal": "none",
+      "roleExpected": "architect",
+      "roleActual": "architect",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "draft",
+      "type": "task",
+      "maturity": "none",
+      "minMaturity": "master",
+      "hold": "none"
+    },
+    "actionGuard": {
+      "outcome": "fail",
+      "class": "consumer-guard",
+      "reason": "unknown-hold",
+      "handoff": "comment-only"
+    }
+  },
+  "adr": [
+    "ADR-010 G6",
+    "ADR-010 G8"
+  ]
+}

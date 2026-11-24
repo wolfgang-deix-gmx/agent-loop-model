@@ -1,0 +1,50 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "re-spec-at-created",
+  "description": "needs:replanning at created without maturity.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "needs:replanning",
+      "role:architect"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "created",
+      "maturity": "none",
+      "exec": "none",
+      "holds": "needs:replanning",
+      "terminal": "none",
+      "roleExpected": "architect",
+      "roleActual": "architect",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "re-spec",
+      "type": "task",
+      "maturity": "none",
+      "minMaturity": "none",
+      "hold": "needs:replanning"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G3",
+    "ADR-010 G6"
+  ],
+  "note": "Evaluator reports min_maturity none for re-spec; see open interpretation point in the PR."
+}

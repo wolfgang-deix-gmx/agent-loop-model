@@ -1,0 +1,54 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "task-drafted",
+  "description": "Task at drafted.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "maturity:advanced",
+      "role:architect"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "drafted",
+      "maturity": "advanced",
+      "exec": "none",
+      "holds": "none",
+      "terminal": "none",
+      "roleExpected": "architect",
+      "roleActual": "architect",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "co-arch",
+      "type": "task",
+      "maturity": "advanced",
+      "minMaturity": "none",
+      "hold": "none"
+    },
+    "actionGuard": {
+      "outcome": "ok",
+      "guard": "pass"
+    }
+  },
+  "adr": [
+    "ADR-010 G2",
+    "ADR-010 G4",
+    "ADR-010 G8"
+  ],
+  "covers": {
+    "roleRow": "R3-created-drafted"
+  }
+}
