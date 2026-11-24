@@ -409,6 +409,7 @@
       { "id": "upstream-fulfilled", "text": "Fulfilment of the external precondition is proven and the decision documented.", "adr": "ADR-010 G6" },
       { "id": "gate-start-go", "text": "A separate operator go for gate start exists; before it, no gate issue is created.", "adr": "ADR-010 Consequences" },
       { "id": "creation-after-legacy-stop", "text": "After the separately proven legacy creation stop, the creation time must be provable; an unclear creation time leads to an operator handoff.", "adr": "ADR-010 G1" },
+      { "id": "promoted-provenance", "text": "gate:promoted was set by the operator, proven by auditable label provenance; a shared bot account proves nothing.", "adr": "ADR-010 G2, Consequences" },
       { "id": "no-concurrent-change", "text": "No concurrent change happened between read and write; GitHub label operations are not atomic and there is no compare-and-swap.", "adr": "ADR-010 Context, Non-goals" }
     ]
   },
@@ -474,7 +475,7 @@
         "id": "set-implemented-agent", "kind": "gate-set", "actors": ["coder"], "operatorOnly": false,
         "labelChanges": { "add": ["gate:implemented"] },
         "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "pool", "in": ["dev"] } } ] },
-        "externalPreconditions": ["dev-claim-held", "actor-capability", "delivery-bound", "no-concurrent-change"],
+        "externalPreconditions": ["dev-claim-held", "actor-capability", "delivery-bound", "promoted-provenance", "no-concurrent-change"],
         "postWrite": ["role-projection", "readback"],
         "adr": "ADR-010 G4, G5"
       },
@@ -491,7 +492,7 @@
         "id": "set-accepted", "kind": "gate-set", "actors": ["reviewer"], "operatorOnly": false,
         "labelChanges": { "add": ["gate:accepted"] },
         "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "pool", "in": ["qat"] } } ] },
-        "externalPreconditions": ["qat-claim-held", "independent-reviewer", "acceptance-bound-same-head", "no-concurrent-change"],
+        "externalPreconditions": ["qat-claim-held", "independent-reviewer", "acceptance-bound-same-head", "promoted-provenance", "no-concurrent-change"],
         "postWrite": ["role-projection", "readback"],
         "adr": "ADR-010 G4, G5"
       },
@@ -514,7 +515,7 @@
         "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "topGate", "in": ["specified", "activated", "promoted", "implemented", "accepted"] } } ] },
         "externalPreconditions": ["main-architect-identity", "affected-claims-halted-first", "no-concurrent-change"],
         "postWrite": ["role-projection", "readback"],
-        "note": "Gates are withdrawn top-down before the body changes; a new spec/review round starts, and promotion or activation is again an operator gate. The existing PR stays the working state of the same delivery unit.",
+        "note": "Gates are withdrawn top-down before the body changes; a new spec/review round starts, and promotion or activation is again an operator gate. The existing PR stays the working state of the same delivery unit. Open point: ADR-010 G6 assigns the cascade to the main architect; the agent-loop write path lets only the operator remove gate:promoted and gate:activated.",
         "adr": "ADR-010 G2, G6, G8"
       },
       {
@@ -533,7 +534,7 @@
         "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "topGate", "in": ["created", "drafted"] } } ] },
         "externalPreconditions": ["main-architect-identity", "no-concurrent-change"],
         "postWrite": ["readback"],
-        "note": "A maturity change is a spec change: it voids the current review round; specified and dependent gates are withdrawn first (withdraw-specified). Replacing the label takes two non-atomic writes; from drafted on, the intermediate state is cardinality-invalid until readback.",
+        "note": "A maturity change is a spec change: it voids the current review round; specified and dependent gates are withdrawn first (withdraw-specified). Replacing the label takes two non-atomic writes; from drafted on, the intermediate state is cardinality-invalid until readback. Open point: the agent-loop write path sets maturity only together with advancing to drafted and refuses any later change.",
         "adr": "ADR-010 G3, G8"
       },
       {
@@ -542,7 +543,7 @@
         "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "type", "in": ["task"] } }, { "value": { "of": "topGate", "in": ["created", "drafted", "specified"] } } ] },
         "externalPreconditions": ["no-concurrent-change"],
         "postWrite": ["readback"],
-        "note": "Execution is fixed per task before promotion. ADR-010 does not name the actor.",
+        "note": "Execution is fixed per task before promotion. ADR-010 does not name the actor. Open point: the agent-loop write path sets exec only together with advancing to specified and refuses a change without revoke.",
         "adr": "ADR-010 G4, G8"
       },
       {

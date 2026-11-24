@@ -76,3 +76,9 @@ Where ADR-010 does not name an actor (who creates gate issues, who sets
 `needs:upstream`, who sets `exec:*`, who withdraws `promoted` for an exec
 change, who withdraws delivery gates after a head change), the model states its
 reading in `note` and the point is listed for the conformance check.
+
+Where the agent-loop write path is stricter than ADR-010, the model follows
+ADR-010 and names the difference in `note` as an open point: the write path
+lets only the operator remove `gate:promoted` and `gate:activated` (also inside
+a withdrawal cascade), and it sets maturity and exec only together with
+advancing to `drafted` and `specified` respectively, refusing later changes.
