@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "prefix-gap-parent",
+  "description": "Parent activated without specified.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "epic",
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "gate:activated",
+      "maturity:master",
+      "role:operator"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "prefix-invalid",
+      "reason": "prefix-gap",
+      "handoff": "needs-operator"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "prefix-invalid",
+      "reason": "prefix-gap",
+      "handoff": "needs-operator"
+    }
+  },
+  "adr": [
+    "ADR-010 G2"
+  ]
+}

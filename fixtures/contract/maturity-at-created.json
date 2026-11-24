@@ -1,0 +1,45 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "maturity-at-created",
+  "description": "One maturity at created is allowed.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "maturity:master",
+      "role:architect"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "created",
+      "maturity": "master",
+      "exec": "none",
+      "holds": "none",
+      "terminal": "none",
+      "roleExpected": "architect",
+      "roleActual": "architect",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "draft",
+      "type": "task",
+      "maturity": "master",
+      "minMaturity": "none",
+      "hold": "none"
+    }
+  },
+  "adr": [
+    "ADR-010 G3",
+    "ADR-010 G8"
+  ]
+}

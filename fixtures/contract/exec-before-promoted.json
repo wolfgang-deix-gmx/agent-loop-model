@@ -1,0 +1,48 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "exec-before-promoted",
+  "description": "One exec before promoted is allowed.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "gate:specified",
+      "maturity:advanced",
+      "exec:agent",
+      "role:operator"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "specified",
+      "maturity": "advanced",
+      "exec": "agent",
+      "holds": "none",
+      "terminal": "none",
+      "roleExpected": "operator",
+      "roleActual": "operator",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "operator-wait",
+      "type": "task",
+      "maturity": "advanced",
+      "minMaturity": "none",
+      "hold": "none"
+    }
+  },
+  "adr": [
+    "ADR-010 G4",
+    "ADR-010 G8"
+  ]
+}

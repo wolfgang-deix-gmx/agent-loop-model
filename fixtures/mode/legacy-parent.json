@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "legacy-parent",
+  "description": "Legacy parent with status:active.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "epic",
+      "status:active",
+      "role:operator"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "legacy"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "not-gate-mode",
+      "reason": "mode-legacy",
+      "handoff": "none"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "not-gate-mode",
+      "reason": "mode-legacy",
+      "handoff": "none"
+    }
+  },
+  "adr": [
+    "ADR-010 G1"
+  ]
+}

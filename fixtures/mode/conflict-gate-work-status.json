@@ -1,0 +1,37 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "conflict-gate-work-status",
+  "description": "mode:gate with a legacy work status.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "status:ready-for-dev"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "gate-with-work-status",
+      "handoff": "comment-only"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "gate-with-work-status",
+      "handoff": "comment-only"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "gate-with-work-status",
+      "handoff": "comment-only"
+    }
+  },
+  "adr": [
+    "ADR-010 G1"
+  ]
+}

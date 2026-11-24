@@ -1,0 +1,48 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "gate-foreign-labels-neutral",
+  "description": "Foreign labels are ignored; epic makes it a parent.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "bug",
+      "mode:gate",
+      "gate:created",
+      "needs:operator",
+      "epic",
+      "role:architect"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "parent",
+      "top": "created",
+      "maturity": "none",
+      "exec": "none",
+      "holds": "needs:operator",
+      "terminal": "none",
+      "roleExpected": "architect",
+      "roleActual": "architect",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "none",
+      "type": "parent",
+      "maturity": "none",
+      "minMaturity": "none",
+      "hold": "needs:operator"
+    }
+  },
+  "adr": [
+    "ADR-010 G1",
+    "ADR-010 G6",
+    "ADR-010 G8"
+  ]
+}

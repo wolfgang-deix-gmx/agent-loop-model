@@ -1,0 +1,53 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "task-promoted-agent",
+  "description": "Task promoted with exec:agent.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "gate:specified",
+      "gate:promoted",
+      "maturity:beginner",
+      "exec:agent",
+      "role:coder"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "promoted",
+      "maturity": "beginner",
+      "exec": "agent",
+      "holds": "none",
+      "terminal": "none",
+      "roleExpected": "coder",
+      "roleActual": "coder",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "dev",
+      "type": "task",
+      "maturity": "beginner",
+      "minMaturity": "none",
+      "hold": "none"
+    }
+  },
+  "adr": [
+    "ADR-010 G2",
+    "ADR-010 G4",
+    "ADR-010 G8"
+  ],
+  "covers": {
+    "roleRow": "R6-promoted-agent"
+  }
+}

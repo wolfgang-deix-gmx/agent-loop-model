@@ -1,0 +1,647 @@
+{
+  "$schema": "../schema/gate-model.schema.json",
+  "meta": {
+    "modelVersion": "1.0.0-draft",
+    "releaseStatus": "unreleased",
+    "normative": false,
+    "schemaVersion": "1",
+    "title": "Agent loop gate model",
+    "description": "Machine-readable description of the gate lifecycle (ADR-010 G1-G8). Unreleased working state: not normative. Until the cutover decision (Epic-008 L1), ADR-010 is the authoritative source.",
+    "source": {
+      "adr": "ADR-010 gate lifecycle (wdeix docs/adr/adr-010-gate-lifecycle.md)",
+      "wdeixCommit": "c22a1b1f96d5ca26c80742f7b78b9084cff47029",
+      "agentLoopCommit": "75c7cf454e65cf1bbf78012dfe41a7531ce1a3b9",
+      "evaluator": "agent-loop plans/e6-4/gate-contract.lib.sh (gate_mode_classify, gate_contract_check, gate_claim_pool)",
+      "legacyStatusSource": "agent-loop plans/loop-012s/label-invariant.lib.sh role_for_status"
+    },
+    "ruleTextIsNormative": false
+  },
+
+  "issueTypes": [
+    { "id": "parent", "rule": "Carries the label epic.", "adr": "ADR-010 G1" },
+    { "id": "task", "rule": "Does not carry the label epic.", "adr": "ADR-010 G1" }
+  ],
+
+  "issueStates": ["OPEN", "CLOSED"],
+
+  "vocabulary": {
+    "description": "Set (a): the admissible gate-mode label vocabulary from ADR-010 G8. Exact names, no aliases.",
+    "families": [
+      {
+        "id": "mode", "prefix": "mode:", "members": ["mode:gate"],
+        "unknownMembers": { "effect": "mode-conflict", "code": "unknown-mode-label" },
+        "adr": "ADR-010 G1, G8"
+      },
+      {
+        "id": "gate", "prefix": "gate:",
+        "members": ["gate:created", "gate:drafted", "gate:specified", "gate:promoted", "gate:implemented", "gate:accepted", "gate:activated"],
+        "unknownMembers": { "effect": "prefix-invalid", "code": "unknown-gate", "withoutMarker": "gate-vocab-without-marker" },
+        "adr": "ADR-010 G2, G8"
+      },
+      {
+        "id": "maturity", "prefix": "maturity:", "members": ["maturity:beginner", "maturity:advanced", "maturity:master"],
+        "unknownMembers": { "effect": "cardinality-invalid", "code": "maturity-unknown", "withoutMarker": "gate-vocab-without-marker" },
+        "adr": "ADR-010 G3, G8"
+      },
+      {
+        "id": "exec", "prefix": "exec:", "members": ["exec:agent", "exec:operator"],
+        "unknownMembers": { "effect": "cardinality-invalid", "code": "exec-unknown", "withoutMarker": "gate-vocab-without-marker" },
+        "adr": "ADR-010 G4, G8"
+      },
+      {
+        "id": "hold", "prefix": "needs:", "members": ["needs:operator", "needs:upstream", "needs:replanning"],
+        "unknownMembers": { "effect": "ignored", "note": "Unknown needs:* labels have no effect except duplicate detection." },
+        "adr": "ADR-010 G6, G8"
+      },
+      {
+        "id": "terminal", "prefix": "status:", "members": ["status:finished", "status:abandoned"],
+        "unknownMembers": { "effect": "mode-conflict", "code": "gate-with-work-status", "withoutMarker": "legacy-classification" },
+        "note": "In gate mode, status:* is admissible only as one of the two shared terminal exits. Any other status:* label is a work status.",
+        "adr": "ADR-010 G1, G7, G8"
+      },
+      {
+        "id": "role", "prefix": "role:", "members": ["role:architect", "role:operator", "role:coder", "role:reviewer"],
+        "unknownMembers": { "effect": "diagnostic", "code": "role-drift", "note": "role:planner is a mode conflict (gate-with-legacy-role); other unknown roles only produce role drift." },
+        "adr": "ADR-010 G8"
+      },
+      {
+        "id": "type", "exact": "epic", "members": ["epic"],
+        "adr": "ADR-010 G1"
+      }
+    ],
+    "foreignLabels": "Labels outside all families are foreign and ignored by every rule."
+  },
+
+  "legacyStatuses": {
+    "description": "Set (b): ADR-009 statuses, used only to recognise legacy issues (ADR-010 G1). No legacy semantics are modelled (Epic-008 L4).",
+    "source": "agent-loop plans/loop-012s/label-invariant.lib.sh role_for_status",
+    "statuses": [
+      "status:planned", "status:ready-for-dev", "status:in-dev", "status:ready-for-improve",
+      "status:ready-for-review", "status:in-review", "status:ready-for-merge", "status:needs-replanning",
+      "status:spec-draft", "status:specified", "status:active", "status:ready-for-finish",
+      "status:blocked", "status:merged", "status:finished", "status:abandoned"
+    ],
+    "adr": "ADR-010 G1"
+  },
+
+  "outputCodes": {
+    "description": "Set (c): every code a classification result can contain. roleActual echoes input labels and is therefore not a code.",
+    "outcome": ["ok", "fail"],
+    "mode": ["gate", "legacy", "none"],
+    "classes": ["mode-conflict", "not-gate-mode", "prefix-invalid", "cardinality-invalid"],
+    "reasons": {
+      "mode-conflict": [
+        "unknown-mode-label", "marker-duplicate", "gate-with-work-status", "terminal-multiple",
+        "gate-with-legacy-role", "gate-vocab-without-marker", "role-without-status",
+        "legacy-status-multiple", "legacy-status-unknown"
+      ],
+      "not-gate-mode": ["mode-legacy", "mode-none"],
+      "prefix-invalid": ["unknown-gate", "type-gate-mismatch", "prefix-gap", "missing-created"],
+      "cardinality-invalid": [
+        "duplicate-label", "maturity-multiple", "maturity-unknown", "maturity-missing",
+        "exec-on-parent", "exec-multiple", "exec-unknown", "exec-missing", "terminal-with-role"
+      ]
+    },
+    "handoffs": ["comment-only", "needs-operator", "none"],
+    "type": ["task", "parent"],
+    "top": ["none", "created", "drafted", "specified", "promoted", "implemented", "accepted", "activated"],
+    "maturity": ["none", "beginner", "advanced", "master"],
+    "exec": ["none", "agent", "operator"],
+    "holds": ["none", "needs:operator", "needs:replanning", "needs:upstream"],
+    "terminal": ["none", "final", "open-recovery", "closed-pending"],
+    "roleExpected": ["none", "architect", "operator", "coder", "reviewer"],
+    "roleDrift": ["no", "yes"],
+    "pool": ["draft", "co-arch", "operator-wait", "dev", "qat", "re-spec", "none"],
+    "minMaturity": ["none", "master"],
+    "serialization": {
+      "holds": "Present holds in the fixed order needs:operator, needs:replanning, needs:upstream, joined with ','; 'none' if empty.",
+      "roleActual": "Suffixes of all role:* labels, sorted by code point, joined with '+'; 'none' if empty."
+    }
+  },
+
+  "cardinality": {
+    "description": "Cardinality per family on an open gate issue (ADR-010 G8). enforcement=classification means the contract table rejects violations; enforcement=diagnostic means a violation is reported as role drift only.",
+    "rules": [
+      { "family": "mode", "types": ["task", "parent"], "stage": "always", "min": 1, "max": 1, "enforcement": "classification", "adr": "ADR-010 G1, G8" },
+      { "family": "gate", "types": ["task"], "stage": "always", "rule": "valid prefix of the task chain", "enforcement": "classification", "adr": "ADR-010 G2, G8" },
+      { "family": "gate", "types": ["parent"], "stage": "always", "rule": "valid prefix of the parent chain", "enforcement": "classification", "adr": "ADR-010 G2, G8" },
+      { "family": "maturity", "types": ["task", "parent"], "stage": "top in [none, created]", "min": 0, "max": 1, "enforcement": "classification", "adr": "ADR-010 G3, G8" },
+      { "family": "maturity", "types": ["task", "parent"], "stage": "top at or above drafted", "min": 1, "max": 1, "enforcement": "classification", "adr": "ADR-010 G3, G8" },
+      { "family": "exec", "types": ["task"], "stage": "top below promoted", "min": 0, "max": 1, "enforcement": "classification", "adr": "ADR-010 G4, G8" },
+      { "family": "exec", "types": ["task"], "stage": "top at or above promoted", "min": 1, "max": 1, "enforcement": "classification", "adr": "ADR-010 G4, G8" },
+      { "family": "exec", "types": ["parent"], "stage": "always", "min": 0, "max": 0, "enforcement": "classification", "adr": "ADR-010 G4, G8" },
+      { "family": "hold", "types": ["task", "parent"], "stage": "always", "rule": "each hold zero or one", "enforcement": "classification", "adr": "ADR-010 G6, G8" },
+      { "family": "terminal", "types": ["task", "parent"], "stage": "always", "min": 0, "max": 1, "rule": "mutually exclusive", "enforcement": "classification", "adr": "ADR-010 G7, G8" },
+      { "family": "role", "types": ["task", "parent"], "stage": "non-terminal", "min": 1, "max": 1, "enforcement": "diagnostic", "note": "A missing or wrong role label is not a prefix error and alone does not block a claim (ADR-010 G8).", "adr": "ADR-010 G8" },
+      { "family": "role", "types": ["task", "parent"], "stage": "terminal", "min": 0, "max": 0, "enforcement": "classification", "adr": "ADR-010 G7, G8" }
+    ]
+  },
+
+  "gateChains": {
+    "task": ["gate:created", "gate:drafted", "gate:specified", "gate:promoted", "gate:implemented", "gate:accepted"],
+    "parent": ["gate:created", "gate:drafted", "gate:specified", "gate:activated"],
+    "adr": "ADR-010 G2",
+    "invariants": [
+      { "id": "cumulative-prefix", "rule": "Every gate present requires all earlier gates of the same type's chain.", "enforcedBy": "contract rows prefix-gap-task, prefix-gap-parent", "adr": "ADR-010 G2" },
+      { "id": "next-gate-only", "rule": "Only the next gate of the chain may be added.", "enforcedBy": "transition static prechecks (topGate equals the predecessor)", "adr": "ADR-010 G2" },
+      { "id": "withdraw-top-down", "rule": "Regular withdrawal removes gates from the highest downward until all remaining statements are currently true.", "enforcedBy": "transition cascades", "adr": "ADR-010 G2, G5, G6" },
+      { "id": "type-gate-match", "rule": "A task with gate:activated or a parent with gate:promoted, gate:implemented or gate:accepted is invalid.", "enforcedBy": "contract rows type-mismatch-task, type-mismatch-parent", "adr": "ADR-010 G1, G2" },
+      { "id": "open-needs-created", "rule": "An OPEN gate issue without terminal must carry at least gate:created.", "enforcedBy": "contract row missing-created", "adr": "ADR-010 G2, G7" }
+    ]
+  },
+
+  "conditionLanguage": {
+    "description": "Decision tables are ordered; the first row whose 'when' holds wins. Conditions are defined in schema/gate-model.schema.json ($defs/condition): has, count, duplicates, state, value, sameValue, always, and the combinators all, any, not. Labels are counted per occurrence; a GitHub label set never contains duplicates, only evaluator-sequence inputs do.",
+    "selectors": "A selector picks labels of the input: by family (members all | known | unknown), by an explicit label list, by the named set legacyStatuses, or a union (anyOf).",
+    "derivedValues": "Derivations are evaluated in the listed order; later ones may reference earlier ones by name, result fields by dotted path (e.g. modeResult.outcome)."
+  },
+
+  "derivations": [
+    {
+      "name": "type",
+      "adr": "ADR-010 G1",
+      "rows": [
+        { "id": "type-parent", "when": { "has": "epic" }, "result": { "value": { "literal": "parent" } }, "adr": "ADR-010 G1" },
+        { "id": "type-task", "when": { "always": true }, "result": { "value": { "literal": "task" } }, "adr": "ADR-010 G1" }
+      ]
+    },
+    {
+      "name": "topGate",
+      "adr": "ADR-010 G2",
+      "expr": { "highestPresent": { "chainsBy": "type", "empty": "none" } }
+    },
+    {
+      "name": "maturity",
+      "adr": "ADR-010 G3, G8",
+      "expr": { "suffix": { "family": "maturity", "empty": "none" } }
+    },
+    {
+      "name": "exec",
+      "adr": "ADR-010 G4, G8",
+      "expr": { "suffix": { "family": "exec", "empty": "none" } }
+    },
+    {
+      "name": "holds",
+      "adr": "ADR-010 G6, G8",
+      "expr": { "joinPresent": { "labels": ["needs:operator", "needs:replanning", "needs:upstream"], "separator": ",", "empty": "none" } }
+    },
+    {
+      "name": "terminal",
+      "adr": "ADR-010 G7",
+      "rows": [
+        { "id": "terminal-final", "when": { "all": [ { "count": { "select": { "family": "terminal", "members": "known" }, "op": "eq", "value": 1 } }, { "state": { "in": ["CLOSED"] } } ] }, "result": { "value": { "literal": "final" } }, "adr": "ADR-010 G7" },
+        { "id": "terminal-open-recovery", "when": { "count": { "select": { "family": "terminal", "members": "known" }, "op": "eq", "value": 1 } }, "result": { "value": { "literal": "open-recovery" } }, "adr": "ADR-010 G7" },
+        { "id": "terminal-closed-pending", "when": { "state": { "in": ["CLOSED"] } }, "result": { "value": { "literal": "closed-pending" } }, "adr": "ADR-010 G7" },
+        { "id": "terminal-none", "when": { "always": true }, "result": { "value": { "literal": "none" } }, "adr": "ADR-010 G7" }
+      ]
+    },
+    {
+      "name": "roleExpected",
+      "adr": "ADR-010 G8",
+      "description": "Role projection, precedence from top to bottom.",
+      "rows": [
+        { "id": "R1-terminal", "when": { "count": { "select": { "family": "terminal", "members": "known" }, "op": "eq", "value": 1 } }, "result": { "value": { "literal": "none" } }, "adr": "ADR-010 G7, G8" },
+        { "id": "R2-replanning", "when": { "has": "needs:replanning" }, "result": { "value": { "literal": "architect" } }, "adr": "ADR-010 G6, G8" },
+        { "id": "R3-created-drafted", "when": { "value": { "of": "topGate", "in": ["created", "drafted"] } }, "result": { "value": { "literal": "architect" } }, "adr": "ADR-010 G8" },
+        { "id": "R4-specified", "when": { "value": { "of": "topGate", "in": ["specified"] } }, "result": { "value": { "literal": "operator" } }, "adr": "ADR-010 G8" },
+        { "id": "R5-activated", "when": { "value": { "of": "topGate", "in": ["activated"] } }, "result": { "value": { "literal": "operator" } }, "adr": "ADR-010 G8" },
+        { "id": "R6-promoted-agent", "when": { "all": [ { "value": { "of": "topGate", "in": ["promoted"] } }, { "has": "exec:agent" } ] }, "result": { "value": { "literal": "coder" } }, "adr": "ADR-010 G8" },
+        { "id": "R7-promoted-operator", "when": { "value": { "of": "topGate", "in": ["promoted"] } }, "result": { "value": { "literal": "operator" } }, "adr": "ADR-010 G8" },
+        { "id": "R8-implemented", "when": { "value": { "of": "topGate", "in": ["implemented"] } }, "result": { "value": { "literal": "reviewer" } }, "adr": "ADR-010 G8" },
+        { "id": "R9-accepted", "when": { "value": { "of": "topGate", "in": ["accepted"] } }, "result": { "value": { "literal": "operator" } }, "adr": "ADR-010 G8" },
+        { "id": "R0-no-gate", "when": { "always": true }, "result": { "value": { "literal": "none" } }, "adr": "ADR-010 G7, G8", "note": "Only reachable for a CLOSED issue without gates and without terminal." }
+      ]
+    },
+    {
+      "name": "roleActual",
+      "adr": "ADR-010 G8",
+      "expr": { "joinSuffixes": { "select": { "family": "role", "members": "all" }, "order": "codepoint", "separator": "+", "empty": "none" } }
+    },
+    {
+      "name": "roleDrift",
+      "adr": "ADR-010 G8",
+      "description": "Drift is a diagnosis, not an error.",
+      "rows": [
+        { "id": "drift-no", "when": { "sameValue": ["roleExpected", "roleActual"] }, "result": { "value": { "literal": "no" } }, "adr": "ADR-010 G8" },
+        { "id": "drift-yes", "when": { "always": true }, "result": { "value": { "literal": "yes" } }, "adr": "ADR-010 G8" }
+      ]
+    },
+    {
+      "name": "modeResult",
+      "adr": "ADR-010 G1",
+      "description": "Mode classification. Precedes every terminal, claim or contract check.",
+      "rows": [
+        { "id": "M-unknown-mode", "when": { "count": { "select": { "family": "mode", "members": "unknown" }, "op": "gt", "value": 0 } },
+          "result": { "fail": { "class": "mode-conflict", "reason": "unknown-mode-label", "handoff": "comment-only" } }, "adr": "ADR-010 G1" },
+        { "id": "M-marker-duplicate", "when": { "count": { "select": { "labels": ["mode:gate"] }, "op": "gt", "value": 1 } },
+          "result": { "fail": { "class": "mode-conflict", "reason": "marker-duplicate", "handoff": "comment-only" } }, "adr": "ADR-010 G1, G8" },
+        { "id": "M-gate-work-status", "when": { "all": [ { "has": "mode:gate" }, { "count": { "select": { "family": "terminal", "members": "unknown" }, "op": "gt", "value": 0 } } ] },
+          "result": { "fail": { "class": "mode-conflict", "reason": "gate-with-work-status", "handoff": "comment-only" } }, "adr": "ADR-010 G1" },
+        { "id": "M-terminal-multiple", "when": { "all": [ { "has": "mode:gate" }, { "count": { "select": { "family": "terminal", "members": "known" }, "op": "gt", "value": 1 } } ] },
+          "result": { "fail": { "class": "mode-conflict", "reason": "terminal-multiple", "handoff": "comment-only" } }, "adr": "ADR-010 G1, G7" },
+        { "id": "M-gate-legacy-role", "when": { "all": [ { "has": "mode:gate" }, { "has": "role:planner" } ] },
+          "result": { "fail": { "class": "mode-conflict", "reason": "gate-with-legacy-role", "handoff": "comment-only" } }, "adr": "ADR-010 G8" },
+        { "id": "M-gate", "when": { "has": "mode:gate" },
+          "result": { "ok": { "mode": { "literal": "gate" } } }, "adr": "ADR-010 G1" },
+        { "id": "M-vocab-without-marker", "when": { "count": { "select": { "anyOf": [ { "family": "gate", "members": "all" }, { "family": "maturity", "members": "all" }, { "family": "exec", "members": "all" }, { "labels": ["needs:replanning"] } ] }, "op": "gt", "value": 0 } },
+          "result": { "fail": { "class": "mode-conflict", "reason": "gate-vocab-without-marker", "handoff": "comment-only" } }, "adr": "ADR-010 G1" },
+        { "id": "M-role-without-status", "when": { "all": [ { "count": { "select": { "family": "terminal", "members": "all" }, "op": "eq", "value": 0 } }, { "count": { "select": { "family": "role", "members": "all" }, "op": "gt", "value": 0 } } ] },
+          "result": { "fail": { "class": "mode-conflict", "reason": "role-without-status", "handoff": "comment-only" } }, "adr": "ADR-010 G1" },
+        { "id": "M-none", "when": { "count": { "select": { "family": "terminal", "members": "all" }, "op": "eq", "value": 0 } },
+          "result": { "ok": { "mode": { "literal": "none" } } }, "adr": "ADR-010 G1" },
+        { "id": "M-legacy-multiple", "when": { "count": { "select": { "family": "terminal", "members": "all" }, "op": "gt", "value": 1 } },
+          "result": { "fail": { "class": "mode-conflict", "reason": "legacy-status-multiple", "handoff": "comment-only" } }, "adr": "ADR-010 G1" },
+        { "id": "M-legacy-unknown", "when": { "count": { "select": { "set": "legacyStatuses" }, "op": "eq", "value": 0 } },
+          "result": { "fail": { "class": "mode-conflict", "reason": "legacy-status-unknown", "handoff": "comment-only" } }, "adr": "ADR-010 G1" },
+        { "id": "M-legacy", "when": { "always": true },
+          "result": { "ok": { "mode": { "literal": "legacy" } } }, "adr": "ADR-010 G1" }
+      ]
+    },
+    {
+      "name": "contractResult",
+      "adr": "ADR-010 G1, G2, G7, G8",
+      "description": "Contract classification of a gate issue.",
+      "rows": [
+        { "id": "C-mode-fail", "when": { "value": { "of": "modeResult.outcome", "in": ["fail"] } }, "result": { "propagate": "modeResult" }, "adr": "ADR-010 G1" },
+        { "id": "C-mode-legacy", "when": { "value": { "of": "modeResult.mode", "in": ["legacy"] } },
+          "result": { "fail": { "class": "not-gate-mode", "reason": "mode-legacy", "handoff": "none" } }, "adr": "ADR-010 G1" },
+        { "id": "C-mode-none", "when": { "value": { "of": "modeResult.mode", "in": ["none"] } },
+          "result": { "fail": { "class": "not-gate-mode", "reason": "mode-none", "handoff": "none" } }, "adr": "ADR-010 G1" },
+        { "id": "C-unknown-gate", "when": { "count": { "select": { "family": "gate", "members": "unknown" }, "op": "gt", "value": 0 } },
+          "result": { "fail": { "class": "prefix-invalid", "reason": "unknown-gate", "handoff": "needs-operator" } }, "adr": "ADR-010 G2, G8" },
+        { "id": "C-type-mismatch-task", "when": { "all": [ { "value": { "of": "type", "in": ["task"] } }, { "has": "gate:activated" } ] },
+          "result": { "fail": { "class": "prefix-invalid", "reason": "type-gate-mismatch", "handoff": "needs-operator" } }, "adr": "ADR-010 G1, G2" },
+        { "id": "C-type-mismatch-parent", "when": { "all": [ { "value": { "of": "type", "in": ["parent"] } }, { "count": { "select": { "labels": ["gate:promoted", "gate:implemented", "gate:accepted"] }, "op": "gt", "value": 0 } } ] },
+          "result": { "fail": { "class": "prefix-invalid", "reason": "type-gate-mismatch", "handoff": "needs-operator" } }, "adr": "ADR-010 G1, G2" },
+        { "id": "C-prefix-gap-task", "when": { "all": [ { "value": { "of": "type", "in": ["task"] } }, { "any": [
+            { "all": [ { "has": "gate:drafted" }, { "not": { "has": "gate:created" } } ] },
+            { "all": [ { "has": "gate:specified" }, { "not": { "has": "gate:drafted" } } ] },
+            { "all": [ { "has": "gate:promoted" }, { "not": { "has": "gate:specified" } } ] },
+            { "all": [ { "has": "gate:implemented" }, { "not": { "has": "gate:promoted" } } ] },
+            { "all": [ { "has": "gate:accepted" }, { "not": { "has": "gate:implemented" } } ] }
+          ] } ] },
+          "result": { "fail": { "class": "prefix-invalid", "reason": "prefix-gap", "handoff": "needs-operator" } }, "adr": "ADR-010 G2" },
+        { "id": "C-prefix-gap-parent", "when": { "all": [ { "value": { "of": "type", "in": ["parent"] } }, { "any": [
+            { "all": [ { "has": "gate:drafted" }, { "not": { "has": "gate:created" } } ] },
+            { "all": [ { "has": "gate:specified" }, { "not": { "has": "gate:drafted" } } ] },
+            { "all": [ { "has": "gate:activated" }, { "not": { "has": "gate:specified" } } ] }
+          ] } ] },
+          "result": { "fail": { "class": "prefix-invalid", "reason": "prefix-gap", "handoff": "needs-operator" } }, "adr": "ADR-010 G2" },
+        { "id": "C-missing-created", "when": { "all": [ { "value": { "of": "topGate", "in": ["none"] } }, { "count": { "select": { "family": "terminal", "members": "known" }, "op": "eq", "value": 0 } }, { "not": { "state": { "in": ["CLOSED"] } } } ] },
+          "result": { "fail": { "class": "prefix-invalid", "reason": "missing-created", "handoff": "needs-operator" } }, "adr": "ADR-010 G2, G7" },
+        { "id": "C-duplicate-label", "when": { "duplicates": { "select": { "anyOf": [ { "family": "mode", "members": "all" }, { "family": "gate", "members": "all" }, { "family": "maturity", "members": "all" }, { "family": "exec", "members": "all" }, { "family": "hold", "members": "all" }, { "family": "role", "members": "all" }, { "family": "terminal", "members": "all" }, { "family": "type", "members": "all" } ] } } },
+          "result": { "fail": { "class": "cardinality-invalid", "reason": "duplicate-label", "handoff": "comment-only" } }, "adr": "ADR-010 G8", "note": "Only reachable with inputKind evaluator-sequence; a GitHub label set has no duplicates." },
+        { "id": "C-maturity-multiple", "when": { "count": { "select": { "family": "maturity", "members": "all" }, "op": "gt", "value": 1 } },
+          "result": { "fail": { "class": "cardinality-invalid", "reason": "maturity-multiple", "handoff": "comment-only" } }, "adr": "ADR-010 G3, G8" },
+        { "id": "C-maturity-unknown", "when": { "count": { "select": { "family": "maturity", "members": "unknown" }, "op": "gt", "value": 0 } },
+          "result": { "fail": { "class": "cardinality-invalid", "reason": "maturity-unknown", "handoff": "comment-only" } }, "adr": "ADR-010 G8" },
+        { "id": "C-maturity-missing", "when": { "all": [ { "value": { "of": "topGate", "in": ["drafted", "specified", "activated", "promoted", "implemented", "accepted"] } }, { "count": { "select": { "family": "maturity", "members": "all" }, "op": "eq", "value": 0 } } ] },
+          "result": { "fail": { "class": "cardinality-invalid", "reason": "maturity-missing", "handoff": "comment-only" } }, "adr": "ADR-010 G3, G8" },
+        { "id": "C-exec-on-parent", "when": { "all": [ { "value": { "of": "type", "in": ["parent"] } }, { "count": { "select": { "family": "exec", "members": "all" }, "op": "gt", "value": 0 } } ] },
+          "result": { "fail": { "class": "cardinality-invalid", "reason": "exec-on-parent", "handoff": "comment-only" } }, "adr": "ADR-010 G4, G8" },
+        { "id": "C-exec-multiple", "when": { "count": { "select": { "family": "exec", "members": "all" }, "op": "gt", "value": 1 } },
+          "result": { "fail": { "class": "cardinality-invalid", "reason": "exec-multiple", "handoff": "comment-only" } }, "adr": "ADR-010 G4, G8" },
+        { "id": "C-exec-unknown", "when": { "count": { "select": { "family": "exec", "members": "unknown" }, "op": "gt", "value": 0 } },
+          "result": { "fail": { "class": "cardinality-invalid", "reason": "exec-unknown", "handoff": "comment-only" } }, "adr": "ADR-010 G8" },
+        { "id": "C-exec-missing", "when": { "all": [ { "value": { "of": "topGate", "in": ["promoted", "implemented", "accepted"] } }, { "count": { "select": { "family": "exec", "members": "all" }, "op": "eq", "value": 0 } } ] },
+          "result": { "fail": { "class": "cardinality-invalid", "reason": "exec-missing", "handoff": "comment-only" } }, "adr": "ADR-010 G4, G8" },
+        { "id": "C-terminal-with-role", "when": { "all": [ { "count": { "select": { "family": "terminal", "members": "known" }, "op": "eq", "value": 1 } }, { "count": { "select": { "family": "role", "members": "all" }, "op": "gt", "value": 0 } } ] },
+          "result": { "fail": { "class": "cardinality-invalid", "reason": "terminal-with-role", "handoff": "comment-only" } }, "adr": "ADR-010 G7, G8" },
+        { "id": "C-ok", "when": { "always": true },
+          "result": { "ok": {
+            "type": { "ref": "type" }, "top": { "ref": "topGate" }, "maturity": { "ref": "maturity" }, "exec": { "ref": "exec" },
+            "holds": { "ref": "holds" }, "terminal": { "ref": "terminal" },
+            "roleExpected": { "ref": "roleExpected" }, "roleActual": { "ref": "roleActual" }, "roleDrift": { "ref": "roleDrift" }
+          } }, "adr": "ADR-010 G2, G7, G8" }
+      ]
+    },
+    {
+      "name": "pool",
+      "adr": "ADR-010 G3, G4, G6",
+      "description": "Contractually admissible claim pool. Only meaningful when contractResult.outcome is ok.",
+      "rows": [
+        { "id": "Q-not-open", "when": { "not": { "state": { "in": ["OPEN"] } } }, "result": { "value": { "literal": "none" } }, "adr": "ADR-010 G7" },
+        { "id": "Q-terminal", "when": { "not": { "value": { "of": "terminal", "in": ["none"] } } }, "result": { "value": { "literal": "none" } }, "adr": "ADR-010 G7" },
+        { "id": "Q-hold-blocks", "when": { "any": [ { "has": "needs:operator" }, { "has": "needs:upstream" } ] }, "result": { "value": { "literal": "none" } }, "adr": "ADR-010 G6" },
+        { "id": "Q-re-spec", "when": { "has": "needs:replanning" }, "result": { "value": { "literal": "re-spec" } }, "adr": "ADR-010 G6" },
+        { "id": "Q-draft", "when": { "value": { "of": "topGate", "in": ["created"] } }, "result": { "value": { "literal": "draft" } }, "adr": "ADR-010 G3, G4" },
+        { "id": "Q-co-arch", "when": { "value": { "of": "topGate", "in": ["drafted"] } }, "result": { "value": { "literal": "co-arch" } }, "adr": "ADR-010 G3, G4" },
+        { "id": "Q-operator-wait-specified", "when": { "value": { "of": "topGate", "in": ["specified"] } }, "result": { "value": { "literal": "operator-wait" } }, "adr": "ADR-010 G4" },
+        { "id": "Q-dev", "when": { "all": [ { "value": { "of": "topGate", "in": ["promoted"] } }, { "has": "exec:agent" } ] }, "result": { "value": { "literal": "dev" } }, "adr": "ADR-010 G4" },
+        { "id": "Q-operator-wait-promoted", "when": { "value": { "of": "topGate", "in": ["promoted"] } }, "result": { "value": { "literal": "operator-wait" } }, "adr": "ADR-010 G4" },
+        { "id": "Q-qat", "when": { "value": { "of": "topGate", "in": ["implemented"] } }, "result": { "value": { "literal": "qat" } }, "adr": "ADR-010 G4, G5" },
+        { "id": "Q-none", "when": { "always": true }, "result": { "value": { "literal": "none" } }, "adr": "ADR-010 G4", "note": "Task accepted, parent activated, or no gate." }
+      ]
+    },
+    {
+      "name": "minMaturity",
+      "adr": "ADR-010 G3",
+      "rows": [
+        { "id": "min-master", "when": { "all": [ { "value": { "of": "pool", "in": ["draft"] } }, { "value": { "of": "maturity", "in": ["none"] } } ] }, "result": { "value": { "literal": "master" } }, "adr": "ADR-010 G3, G8" },
+        { "id": "min-none", "when": { "always": true }, "result": { "value": { "literal": "none" } }, "adr": "ADR-010 G3" }
+      ]
+    },
+    {
+      "name": "poolResult",
+      "adr": "ADR-010 G3, G4, G6",
+      "rows": [
+        { "id": "P-contract-fail", "when": { "value": { "of": "contractResult.outcome", "in": ["fail"] } }, "result": { "propagate": "contractResult" }, "adr": "ADR-010 G4" },
+        { "id": "P-ok", "when": { "always": true }, "result": { "ok": {
+            "pool": { "ref": "pool" }, "type": { "ref": "type" }, "maturity": { "ref": "maturity" },
+            "minMaturity": { "ref": "minMaturity" }, "hold": { "ref": "holds" }
+          } }, "adr": "ADR-010 G4" }
+      ]
+    }
+  ],
+
+  "results": {
+    "mode": "modeResult",
+    "contract": "contractResult",
+    "pool": "poolResult"
+  },
+
+  "claimPools": {
+    "description": "Pools a claim may reserve (ADR-010 G4). A pool is a static admissibility statement, never a claim and never an authorisation.",
+    "pools": [
+      { "id": "draft", "reached": "created", "notReached": "drafted", "reservation": "one architect for the draft", "adr": "ADR-010 G4" },
+      { "id": "co-arch", "reached": "drafted", "notReached": "specified", "reservation": "separate co-architect slots up to the fixed quorum; not the main architect of the same round", "adr": "ADR-010 G3, G4" },
+      { "id": "operator-wait", "reached": "specified (or task promoted with exec:operator)", "notReached": "promoted / activated", "reservation": "no agent work; operator waiting point", "adr": "ADR-010 G4" },
+      { "id": "dev", "reached": "promoted", "notReached": "implemented", "reservation": "one exclusive dev claim, only with exec:agent", "adr": "ADR-010 G4" },
+      { "id": "qat", "reached": "implemented", "notReached": "accepted", "reservation": "one exclusive QAT claim by a reviewer independent of the coder", "adr": "ADR-010 G4, G5" },
+      { "id": "re-spec", "reached": "any, with needs:replanning", "reservation": "only the responsible main architect, for re-spec work", "adr": "ADR-010 G6" },
+      { "id": "none", "reservation": "no claim: not OPEN, terminal set, blocking hold, task accepted, parent activated or no gate", "adr": "ADR-010 G4, G6, G7" }
+    ],
+    "holdEffects": [
+      { "hold": "needs:operator", "effect": "blocks all agent claims; leaves the projected role unchanged; removed only by the operator", "adr": "ADR-010 G6, G8" },
+      { "hold": "needs:upstream", "effect": "blocks all agent claims; leaves the projected role unchanged; removed by the operator only after documented fulfilment of the external precondition", "adr": "ADR-010 G6, G8" },
+      { "hold": "needs:replanning", "effect": "blocks coder and reviewer; allows only re-spec work by the responsible main architect; projects role architect", "adr": "ADR-010 G6, G8" }
+    ],
+    "minimumMaturity": { "rule": "An issue with only gate:created and no maturity:* may be claimed for the draft by master architects only.", "adr": "ADR-010 G3, G8" },
+    "ruleTextOnly": [
+      { "id": "quorum", "text": "Before a review round the main architect fixes a quorum of one to three independent co-architect PASS. Changing spec or quorum starts a new round and voids earlier PASS for the decision.", "adr": "ADR-010 G3" },
+      { "id": "independence", "text": "Only valid PASS of the current round from independent agent/listener identities count. A shared GitHub bot account does not prove independence.", "adr": "ADR-010 G3" },
+      { "id": "capability", "text": "A listener/agent pair is configured by repo, role and maximum maturity; claims above the own maturity are excluded.", "adr": "ADR-010 G3, G4" },
+      { "id": "leases", "text": "Claims are time-limited reservations, not gates. Lease, timer and retry mechanics are implementation decisions.", "adr": "ADR-010 G3, G4" },
+      { "id": "orphaned-claims", "text": "A claim whose gate disappeared is orphaned: it may not be taken over; its holder stops delivery and gate writes and may only release and comment.", "adr": "ADR-010 G6" },
+      { "id": "exclusive-delivery", "text": "Coder and reviewer claims of the same delivery must never be valid at the same time.", "adr": "ADR-010 G4" }
+    ]
+  },
+
+  "externalPreconditions": {
+    "description": "Preconditions labels cannot prove. They are named, not evaluable. A consumer offers a write only after checking them via the authoritative write path; if any is unknown, the write is not offered (fail-closed).",
+    "catalog": [
+      { "id": "operator-identity", "text": "The actor is the operator, proven by auditable provenance. role:operator grants no operator right.", "adr": "ADR-010 G4, Consequences" },
+      { "id": "main-architect-identity", "text": "The actor is the responsible main architect of this issue.", "adr": "ADR-010 G3" },
+      { "id": "independent-reviewer", "text": "The reviewer is independent of the coder of this delivery.", "adr": "ADR-010 G4, G5" },
+      { "id": "actor-capability", "text": "Repo, role and maturity fit of the actor's capability.", "adr": "ADR-010 G3, G4" },
+      { "id": "draft-claim-held", "text": "The actor holds the valid draft claim.", "adr": "ADR-010 G4" },
+      { "id": "co-arch-quorum", "text": "The fixed quorum of independent co-architect PASS for the current spec round is reached.", "adr": "ADR-010 G3" },
+      { "id": "dev-claim-held", "text": "The actor holds the exclusive dev claim.", "adr": "ADR-010 G4" },
+      { "id": "qat-claim-held", "text": "The actor holds the exclusive QAT claim.", "adr": "ADR-010 G4, G5" },
+      { "id": "qat-claim-released-first", "text": "A running QAT claim is released or invalidated before the gate withdrawal or before the head/evidence changes.", "adr": "ADR-010 G5" },
+      { "id": "affected-claims-halted-first", "text": "Affected claims are halted or invalidated before their gate preconditions are withdrawn.", "adr": "ADR-010 G6" },
+      { "id": "all-claims-released", "text": "All claims are released; if that fails, the terminal write does not happen and a visible diagnosis is given.", "adr": "ADR-010 G7" },
+      { "id": "delivery-bound", "text": "The current delivery (PR head or no-PR evidence) is completely and verifiably submitted.", "adr": "ADR-010 G5" },
+      { "id": "acceptance-bound-same-head", "text": "The PASS is bound to exactly the same head or no-PR evidence as gate:implemented.", "adr": "ADR-010 G5" },
+      { "id": "merge-or-evidence", "text": "The PR is merged or the no-PR evidence is verified (finished), or the abort is deliberate (abandoned).", "adr": "ADR-010 G7" },
+      { "id": "parent-goal-and-children", "text": "For a parent, the operator has checked goal and children.", "adr": "ADR-010 G7" },
+      { "id": "documented-reason", "text": "A justified reason is documented on the issue.", "adr": "ADR-010 G6" },
+      { "id": "upstream-fulfilled", "text": "Fulfilment of the external precondition is proven and the decision documented.", "adr": "ADR-010 G6" },
+      { "id": "gate-start-go", "text": "A separate operator go for gate start exists; before it, no gate issue is created.", "adr": "ADR-010 Consequences" },
+      { "id": "creation-after-legacy-stop", "text": "After the separately proven legacy creation stop, the creation time must be provable; an unclear creation time leads to an operator handoff.", "adr": "ADR-010 G1" },
+      { "id": "no-concurrent-change", "text": "No concurrent change happened between read and write; GitHub label operations are not atomic and there is no compare-and-swap.", "adr": "ADR-010 Context, Non-goals" }
+    ]
+  },
+
+  "postWrite": {
+    "role-projection": { "text": "After a gate write, the gate write path corrects role:* to the projection, with readback. Skipped under mode-conflict (no workflow write at all) and under prefix-invalid (role stays unchanged). Gate and role write are not atomic.", "adr": "ADR-010 G8" },
+    "readback": { "text": "Re-read issue state and labels and re-classify; the result must match the intended state.", "adr": "ADR-010 G8, Consequences" },
+    "remove-roles": { "text": "An issue with terminal carries no role:*; operator handoff happens by comment/notify, not by a role label.", "adr": "ADR-010 G7" },
+    "close-issue": { "text": "Final means CLOSED, exactly one terminal and no claim.", "adr": "ADR-010 G7" }
+  },
+
+  "transitions": {
+    "description": "Label transitions of a gate issue. staticPrecheck is at most a necessary static pre-check over classification results; it is never an authorisation (Epic-008 L5). Every transition additionally requires its externalPreconditions.",
+    "baseConditions": {
+      "gate-ok-open": { "all": [ { "value": { "of": "contractResult.outcome", "in": ["ok"] } }, { "state": { "in": ["OPEN"] } }, { "value": { "of": "terminal", "in": ["none"] } } ] }
+    },
+    "items": [
+      {
+        "id": "create-gate-issue", "kind": "create", "actors": ["architect", "operator"], "operatorOnly": false,
+        "labelChanges": { "add": ["mode:gate", "gate:created"] },
+        "staticPrecheck": { "all": [ { "value": { "of": "modeResult.mode", "in": ["none"] } }, { "state": { "in": ["OPEN"] } } ] },
+        "externalPreconditions": ["gate-start-go", "creation-after-legacy-stop"],
+        "postWrite": ["role-projection", "readback"],
+        "note": "mode:gate is set at creation and never changed; mode is never inferred from gate labels. Who creates gate issues is not fixed by ADR-010.",
+        "adr": "ADR-010 G1, G2, Consequences"
+      },
+      {
+        "id": "set-drafted", "kind": "gate-set", "actors": ["architect"], "operatorOnly": false,
+        "labelChanges": { "add": ["gate:drafted"] },
+        "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "topGate", "in": ["created"] } }, { "value": { "of": "pool", "in": ["draft", "re-spec"] } }, { "not": { "value": { "of": "maturity", "in": ["none"] } } } ] },
+        "externalPreconditions": ["main-architect-identity", "draft-claim-held", "actor-capability", "no-concurrent-change"],
+        "postWrite": ["role-projection", "readback"],
+        "note": "Exactly one maturity:* is required from drafted on, so the maturity is set before this write.",
+        "adr": "ADR-010 G2, G3, G8"
+      },
+      {
+        "id": "set-specified", "kind": "gate-set", "actors": ["architect"], "operatorOnly": false,
+        "labelChanges": { "add": ["gate:specified"] },
+        "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "topGate", "in": ["drafted"] } }, { "value": { "of": "pool", "in": ["co-arch", "re-spec"] } } ] },
+        "externalPreconditions": ["main-architect-identity", "co-arch-quorum", "no-concurrent-change"],
+        "postWrite": ["role-projection", "readback"],
+        "note": "The ADR-009 operator override is not inherited; an exception needs its own operator/ADR decision.",
+        "adr": "ADR-010 G2, G3"
+      },
+      {
+        "id": "set-promoted", "kind": "gate-set", "actors": ["operator"], "operatorOnly": true,
+        "labelChanges": { "add": ["gate:promoted"] },
+        "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "type", "in": ["task"] } }, { "value": { "of": "topGate", "in": ["specified"] } }, { "value": { "of": "holds", "in": ["none"] } }, { "not": { "value": { "of": "exec", "in": ["none"] } } } ] },
+        "externalPreconditions": ["operator-identity", "no-concurrent-change"],
+        "postWrite": ["role-projection", "readback"],
+        "note": "Execution release for exactly this spec. exec:* is fixed before promotion.",
+        "adr": "ADR-010 G2, G4, G8"
+      },
+      {
+        "id": "set-activated", "kind": "gate-set", "actors": ["operator"], "operatorOnly": true,
+        "labelChanges": { "add": ["gate:activated"] },
+        "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "type", "in": ["parent"] } }, { "value": { "of": "topGate", "in": ["specified"] } }, { "value": { "of": "holds", "in": ["none"] } } ] },
+        "externalPreconditions": ["operator-identity", "no-concurrent-change"],
+        "postWrite": ["role-projection", "readback"],
+        "adr": "ADR-010 G2"
+      },
+      {
+        "id": "set-implemented-agent", "kind": "gate-set", "actors": ["coder"], "operatorOnly": false,
+        "labelChanges": { "add": ["gate:implemented"] },
+        "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "pool", "in": ["dev"] } } ] },
+        "externalPreconditions": ["dev-claim-held", "actor-capability", "delivery-bound", "no-concurrent-change"],
+        "postWrite": ["role-projection", "readback"],
+        "adr": "ADR-010 G4, G5"
+      },
+      {
+        "id": "set-implemented-operator", "kind": "gate-set", "actors": ["operator"], "operatorOnly": true,
+        "labelChanges": { "add": ["gate:implemented"] },
+        "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "type", "in": ["task"] } }, { "value": { "of": "topGate", "in": ["promoted"] } }, { "value": { "of": "exec", "in": ["operator"] } }, { "value": { "of": "holds", "in": ["none"] } } ] },
+        "externalPreconditions": ["operator-identity", "delivery-bound", "no-concurrent-change"],
+        "postWrite": ["role-projection", "readback"],
+        "note": "Operator-only no-PR task: the operator sets implemented with evidence; an independent reviewer checks afterwards.",
+        "adr": "ADR-010 G5"
+      },
+      {
+        "id": "set-accepted", "kind": "gate-set", "actors": ["reviewer"], "operatorOnly": false,
+        "labelChanges": { "add": ["gate:accepted"] },
+        "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "pool", "in": ["qat"] } } ] },
+        "externalPreconditions": ["qat-claim-held", "independent-reviewer", "acceptance-bound-same-head", "no-concurrent-change"],
+        "postWrite": ["role-projection", "readback"],
+        "adr": "ADR-010 G4, G5"
+      },
+      {
+        "id": "withdraw-delivery", "kind": "gate-withdraw", "actors": ["reviewer", "coder"], "operatorOnly": false,
+        "labelChanges": { "remove": ["gate:accepted", "gate:implemented"] },
+        "cascade": ["gate:accepted", "gate:implemented"],
+        "triggers": ["QAT findings (reviewer)", "withdrawn PASS with finding (reviewer)", "change of head or no-PR evidence after submission (coder)"],
+        "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "type", "in": ["task"] } }, { "value": { "of": "topGate", "in": ["implemented", "accepted"] } } ] },
+        "externalPreconditions": ["qat-claim-released-first", "documented-reason", "no-concurrent-change"],
+        "postWrite": ["role-projection", "readback"],
+        "note": "gate:promoted stays. The coder improves the same delivery / PR and resubmits.",
+        "adr": "ADR-010 G5"
+      },
+      {
+        "id": "withdraw-specified", "kind": "gate-withdraw", "actors": ["architect"], "operatorOnly": false,
+        "labelChanges": { "remove": ["gate:accepted", "gate:implemented", "gate:promoted", "gate:activated", "gate:specified"] },
+        "cascade": ["gate:accepted", "gate:implemented", "gate:promoted", "gate:activated", "gate:specified"],
+        "triggers": ["spec break with needs:replanning", "maturity change", "parent goal, guardrail or completion-rule change", "any other loss of the current spec"],
+        "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "topGate", "in": ["specified", "activated", "promoted", "implemented", "accepted"] } } ] },
+        "externalPreconditions": ["main-architect-identity", "affected-claims-halted-first", "no-concurrent-change"],
+        "postWrite": ["role-projection", "readback"],
+        "note": "Gates are withdrawn top-down before the body changes; a new spec/review round starts, and promotion or activation is again an operator gate. The existing PR stays the working state of the same delivery unit.",
+        "adr": "ADR-010 G2, G6, G8"
+      },
+      {
+        "id": "withdraw-promoted-for-exec-change", "kind": "gate-withdraw", "actors": ["operator"], "operatorOnly": true,
+        "labelChanges": { "remove": ["gate:accepted", "gate:implemented", "gate:promoted"] },
+        "cascade": ["gate:accepted", "gate:implemented", "gate:promoted"],
+        "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "type", "in": ["task"] } }, { "value": { "of": "topGate", "in": ["promoted", "implemented", "accepted"] } } ] },
+        "externalPreconditions": ["operator-identity", "affected-claims-halted-first", "no-concurrent-change"],
+        "postWrite": ["role-projection", "readback"],
+        "note": "A change of exec:* with existing promoted first requires withdrawing promoted and the delivery gates, then a new operator promotion.",
+        "adr": "ADR-010 G8"
+      },
+      {
+        "id": "change-maturity", "kind": "maturity-change", "actors": ["architect"], "operatorOnly": false,
+        "labelChanges": { "replace": { "family": "maturity" } },
+        "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "topGate", "in": ["created", "drafted"] } } ] },
+        "externalPreconditions": ["main-architect-identity", "no-concurrent-change"],
+        "postWrite": ["readback"],
+        "note": "A maturity change is a spec change: it voids the current review round; specified and dependent gates are withdrawn first (withdraw-specified). Replacing the label takes two non-atomic writes; from drafted on, the intermediate state is cardinality-invalid until readback.",
+        "adr": "ADR-010 G3, G8"
+      },
+      {
+        "id": "set-exec", "kind": "exec-change", "actors": ["architect", "operator"], "operatorOnly": false,
+        "labelChanges": { "replace": { "family": "exec" } },
+        "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "type", "in": ["task"] } }, { "value": { "of": "topGate", "in": ["created", "drafted", "specified"] } } ] },
+        "externalPreconditions": ["no-concurrent-change"],
+        "postWrite": ["readback"],
+        "note": "Execution is fixed per task before promotion. ADR-010 does not name the actor.",
+        "adr": "ADR-010 G4, G8"
+      },
+      {
+        "id": "set-hold-replanning", "kind": "hold-set", "actors": ["reviewer", "operator"], "operatorOnly": false,
+        "labelChanges": { "add": ["needs:replanning"] },
+        "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "not": { "has": "needs:replanning" } } ] },
+        "externalPreconditions": ["documented-reason", "no-concurrent-change"],
+        "postWrite": ["role-projection", "readback"],
+        "adr": "ADR-010 G6"
+      },
+      {
+        "id": "release-hold-replanning", "kind": "hold-release", "actors": ["architect"], "operatorOnly": false,
+        "labelChanges": { "remove": ["needs:replanning"] },
+        "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "has": "needs:replanning" }, { "value": { "of": "topGate", "in": ["specified"] } } ] },
+        "externalPreconditions": ["main-architect-identity", "co-arch-quorum", "no-concurrent-change"],
+        "postWrite": ["role-projection", "readback"],
+        "note": "Only after the current spec round and an independent quorum carry specified again; then the operator may promote again.",
+        "adr": "ADR-010 G6"
+      },
+      {
+        "id": "set-hold-operator", "kind": "hold-set", "actors": ["architect", "coder", "reviewer", "operator"], "operatorOnly": false,
+        "labelChanges": { "add": ["needs:operator"] },
+        "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "not": { "has": "needs:operator" } } ] },
+        "exceptions": [
+          { "id": "prefix-invalid-handoff", "text": "An unexpected non-prefix stops every interaction fail-closed and leads with diagnosis to needs:operator. This hold is the only workflow write admissible under prefix-invalid.",
+            "staticPrecheck": { "all": [ { "value": { "of": "contractResult.class", "in": ["prefix-invalid"] } }, { "state": { "in": ["OPEN"] } }, { "not": { "has": "needs:operator" } } ] },
+            "adr": "ADR-010 G2" }
+        ],
+        "externalPreconditions": ["documented-reason", "no-concurrent-change"],
+        "postWrite": ["readback"],
+        "note": "Under mode-conflict no workflow write happens at all, not even a hold (comment/notify only).",
+        "adr": "ADR-010 G1, G2, G6"
+      },
+      {
+        "id": "release-hold-operator", "kind": "hold-release", "actors": ["operator"], "operatorOnly": true,
+        "labelChanges": { "remove": ["needs:operator"] },
+        "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "has": "needs:operator" } ] },
+        "externalPreconditions": ["operator-identity", "documented-reason", "no-concurrent-change"],
+        "postWrite": ["readback"],
+        "note": "Releasing a hold also requires the full mode/prefix/claim check.",
+        "adr": "ADR-010 G6"
+      },
+      {
+        "id": "set-hold-upstream", "kind": "hold-set", "actors": ["architect", "coder", "reviewer", "operator"], "operatorOnly": false,
+        "labelChanges": { "add": ["needs:upstream"] },
+        "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "not": { "has": "needs:upstream" } } ] },
+        "externalPreconditions": ["documented-reason", "no-concurrent-change"],
+        "postWrite": ["readback"],
+        "note": "ADR-010 does not name who sets needs:upstream; agents may only report its fulfilment.",
+        "adr": "ADR-010 G6"
+      },
+      {
+        "id": "release-hold-upstream", "kind": "hold-release", "actors": ["operator"], "operatorOnly": true,
+        "labelChanges": { "remove": ["needs:upstream"] },
+        "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "has": "needs:upstream" } ] },
+        "externalPreconditions": ["operator-identity", "upstream-fulfilled", "no-concurrent-change"],
+        "postWrite": ["readback"],
+        "adr": "ADR-010 G6"
+      },
+      {
+        "id": "set-terminal-finished", "kind": "terminal-set", "actors": ["operator"], "operatorOnly": true,
+        "labelChanges": { "add": ["status:finished"] },
+        "staticPrecheck": { "all": [ { "value": { "of": "modeResult.mode", "in": ["gate"] } }, { "count": { "select": { "family": "terminal", "members": "known" }, "op": "eq", "value": 0 } } ] },
+        "exceptions": [
+          { "id": "G7-no-gate-precondition", "text": "The terminal write requires no additional gate precondition; it checks only unambiguous mode, terminal uniqueness and release of all claims. It is therefore admissible from any contract result as long as the mode is gate.", "adr": "ADR-010 G7" }
+        ],
+        "externalPreconditions": ["operator-identity", "all-claims-released", "merge-or-evidence", "parent-goal-and-children", "no-concurrent-change"],
+        "postWrite": ["remove-roles", "close-issue", "readback"],
+        "adr": "ADR-010 G7"
+      },
+      {
+        "id": "set-terminal-abandoned", "kind": "terminal-set", "actors": ["operator"], "operatorOnly": true,
+        "labelChanges": { "add": ["status:abandoned"] },
+        "staticPrecheck": { "all": [ { "value": { "of": "modeResult.mode", "in": ["gate"] } }, { "count": { "select": { "family": "terminal", "members": "known" }, "op": "eq", "value": 0 } } ] },
+        "exceptions": [
+          { "id": "G7-no-gate-precondition", "text": "No gates are coded as a precondition for abandoned.", "adr": "ADR-010 G7" }
+        ],
+        "externalPreconditions": ["operator-identity", "all-claims-released", "merge-or-evidence", "no-concurrent-change"],
+        "postWrite": ["remove-roles", "close-issue", "readback"],
+        "adr": "ADR-010 G7"
+      },
+      {
+        "id": "recover-prefix-invalid", "kind": "recovery", "actors": ["operator"], "operatorOnly": true,
+        "labelChanges": { "operatorDefined": true },
+        "staticPrecheck": { "all": [ { "value": { "of": "contractResult.class", "in": ["prefix-invalid"] } }, { "state": { "in": ["OPEN"] } } ] },
+        "externalPreconditions": ["operator-identity", "documented-reason", "no-concurrent-change"],
+        "postWrite": ["readback", "role-projection"],
+        "note": "The operator restores a valid prefix; afterwards readback must classify ok before roles are projected and needs:operator is released.",
+        "adr": "ADR-010 G2"
+      },
+      {
+        "id": "recover-open-terminal", "kind": "recovery", "actors": ["operator"], "operatorOnly": true,
+        "labelChanges": { "operatorDefined": true },
+        "staticPrecheck": { "value": { "of": "terminal", "in": ["open-recovery"] } },
+        "externalPreconditions": ["operator-identity", "no-concurrent-change"],
+        "postWrite": ["readback"],
+        "note": "An OPEN issue with terminal requires recovery by the operator and no agent work; handoff by comment/notify.",
+        "adr": "ADR-010 G7"
+      }
+    ]
+  }
+}

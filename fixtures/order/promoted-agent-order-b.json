@@ -1,0 +1,50 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "promoted-agent-order-b",
+  "description": "Result does not depend on label order.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "role:coder",
+      "exec:agent",
+      "maturity:beginner",
+      "gate:promoted",
+      "gate:specified",
+      "gate:drafted",
+      "gate:created",
+      "mode:gate"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "promoted",
+      "maturity": "beginner",
+      "exec": "agent",
+      "holds": "none",
+      "terminal": "none",
+      "roleExpected": "coder",
+      "roleActual": "coder",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "dev",
+      "type": "task",
+      "maturity": "beginner",
+      "minMaturity": "none",
+      "hold": "none"
+    }
+  },
+  "adr": [
+    "ADR-010 G2",
+    "ADR-010 G4"
+  ],
+  "orderGroup": "promoted-agent"
+}

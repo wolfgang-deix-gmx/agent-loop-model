@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "conflict-role-without-status",
+  "description": "role:* without status and without marker.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "role:coder"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "role-without-status",
+      "handoff": "comment-only"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "role-without-status",
+      "handoff": "comment-only"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "role-without-status",
+      "handoff": "comment-only"
+    }
+  },
+  "adr": [
+    "ADR-010 G1"
+  ]
+}

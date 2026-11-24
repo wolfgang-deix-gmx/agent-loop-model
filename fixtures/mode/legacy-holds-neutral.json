@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "legacy-holds-neutral",
+  "description": "needs:operator and needs:upstream are neutral for legacy issues.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "status:ready-for-dev",
+      "role:coder",
+      "needs:operator",
+      "needs:upstream"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "legacy"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "not-gate-mode",
+      "reason": "mode-legacy",
+      "handoff": "none"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "not-gate-mode",
+      "reason": "mode-legacy",
+      "handoff": "none"
+    }
+  },
+  "adr": [
+    "ADR-010 G1"
+  ]
+}

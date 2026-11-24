@@ -1,0 +1,40 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "conflict-legacy-status-multiple",
+  "description": "Two legacy statuses.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "status:ready-for-dev",
+      "status:in-dev",
+      "role:coder"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "legacy-status-multiple",
+      "handoff": "comment-only"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "legacy-status-multiple",
+      "handoff": "comment-only"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "legacy-status-multiple",
+      "handoff": "comment-only"
+    }
+  },
+  "adr": [
+    "ADR-010 G1"
+  ],
+  "covers": {
+    "legacy": "multiple"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "legacy-known",
+  "description": "Legacy issue with a known ADR-009 status.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "status:ready-for-dev",
+      "role:coder"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "legacy"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "not-gate-mode",
+      "reason": "mode-legacy",
+      "handoff": "none"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "not-gate-mode",
+      "reason": "mode-legacy",
+      "handoff": "none"
+    }
+  },
+  "adr": [
+    "ADR-010 G1"
+  ],
+  "covers": {
+    "legacy": "known"
+  }
+}

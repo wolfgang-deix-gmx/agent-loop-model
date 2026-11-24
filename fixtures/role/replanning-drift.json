@@ -1,0 +1,50 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "replanning-drift",
+  "description": "Wrong role under needs:replanning is drift, not an error.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "gate:specified",
+      "gate:promoted",
+      "maturity:advanced",
+      "exec:agent",
+      "needs:replanning",
+      "role:coder"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "promoted",
+      "maturity": "advanced",
+      "exec": "agent",
+      "holds": "needs:replanning",
+      "terminal": "none",
+      "roleExpected": "architect",
+      "roleActual": "coder",
+      "roleDrift": "yes"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "re-spec",
+      "type": "task",
+      "maturity": "advanced",
+      "minMaturity": "none",
+      "hold": "needs:replanning"
+    }
+  },
+  "adr": [
+    "ADR-010 G6",
+    "ADR-010 G8"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "none-empty",
+  "description": "No labels at all.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": []
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "none"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "not-gate-mode",
+      "reason": "mode-none",
+      "handoff": "none"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "not-gate-mode",
+      "reason": "mode-none",
+      "handoff": "none"
+    }
+  },
+  "adr": [
+    "ADR-010 G1"
+  ]
+}

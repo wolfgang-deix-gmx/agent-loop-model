@@ -1,0 +1,38 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "conflict-marker-duplicate",
+  "description": "mode:gate twice (artificial evaluator input).",
+  "inputKind": "evaluator-sequence",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "mode:gate",
+      "gate:created"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "marker-duplicate",
+      "handoff": "comment-only"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "marker-duplicate",
+      "handoff": "comment-only"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "marker-duplicate",
+      "handoff": "comment-only"
+    }
+  },
+  "adr": [
+    "ADR-010 G1",
+    "ADR-010 G8"
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "open-recovery-without-gates",
+  "description": "OPEN abandoned without gates is recovery, not missing-created.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "status:abandoned"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "none",
+      "maturity": "none",
+      "exec": "none",
+      "holds": "none",
+      "terminal": "open-recovery",
+      "roleExpected": "none",
+      "roleActual": "none",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "none",
+      "type": "task",
+      "maturity": "none",
+      "minMaturity": "none",
+      "hold": "none"
+    }
+  },
+  "adr": [
+    "ADR-010 G2",
+    "ADR-010 G7"
+  ]
+}

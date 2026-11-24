@@ -1,0 +1,37 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "unknown-gate",
+  "description": "Unknown gate:* member.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "gate:reviewed",
+      "role:architect"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "prefix-invalid",
+      "reason": "unknown-gate",
+      "handoff": "needs-operator"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "prefix-invalid",
+      "reason": "unknown-gate",
+      "handoff": "needs-operator"
+    }
+  },
+  "adr": [
+    "ADR-010 G2",
+    "ADR-010 G8"
+  ]
+}

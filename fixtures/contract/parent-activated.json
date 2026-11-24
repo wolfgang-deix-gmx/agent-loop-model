@@ -1,0 +1,53 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "parent-activated",
+  "description": "Parent activated.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "epic",
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "gate:specified",
+      "gate:activated",
+      "maturity:master",
+      "role:operator"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "parent",
+      "top": "activated",
+      "maturity": "master",
+      "exec": "none",
+      "holds": "none",
+      "terminal": "none",
+      "roleExpected": "operator",
+      "roleActual": "operator",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "none",
+      "type": "parent",
+      "maturity": "master",
+      "minMaturity": "none",
+      "hold": "none"
+    }
+  },
+  "adr": [
+    "ADR-010 G2",
+    "ADR-010 G4",
+    "ADR-010 G8"
+  ],
+  "covers": {
+    "roleRow": "R5-activated"
+  }
+}

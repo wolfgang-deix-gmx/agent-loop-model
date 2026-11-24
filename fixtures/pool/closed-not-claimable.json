@@ -1,0 +1,48 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "closed-not-claimable",
+  "description": "A CLOSED issue is never claimable.",
+  "inputKind": "set",
+  "input": {
+    "state": "CLOSED",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "gate:specified",
+      "gate:promoted",
+      "maturity:beginner",
+      "exec:agent",
+      "role:coder"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "promoted",
+      "maturity": "beginner",
+      "exec": "agent",
+      "holds": "none",
+      "terminal": "closed-pending",
+      "roleExpected": "coder",
+      "roleActual": "coder",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "none",
+      "type": "task",
+      "maturity": "beginner",
+      "minMaturity": "none",
+      "hold": "none"
+    }
+  },
+  "adr": [
+    "ADR-010 G7"
+  ]
+}

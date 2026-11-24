@@ -1,0 +1,38 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "mixed-order-a",
+  "description": "Mode conflict does not depend on label order.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "status:ready-for-dev",
+      "role:coder",
+      "gate:promoted"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "gate-vocab-without-marker",
+      "handoff": "comment-only"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "gate-vocab-without-marker",
+      "handoff": "comment-only"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "gate-vocab-without-marker",
+      "handoff": "comment-only"
+    }
+  },
+  "adr": [
+    "ADR-010 G1"
+  ],
+  "orderGroup": "mixed"
+}

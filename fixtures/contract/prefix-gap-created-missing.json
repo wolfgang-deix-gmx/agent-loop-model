@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "prefix-gap-created-missing",
+  "description": "drafted without created.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:drafted",
+      "maturity:master",
+      "role:architect"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "prefix-invalid",
+      "reason": "prefix-gap",
+      "handoff": "needs-operator"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "prefix-invalid",
+      "reason": "prefix-gap",
+      "handoff": "needs-operator"
+    }
+  },
+  "adr": [
+    "ADR-010 G2"
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "conflict-replanning-without-marker",
+  "description": "needs:replanning without mode:gate.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "status:ready-for-dev",
+      "role:coder",
+      "needs:replanning"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "gate-vocab-without-marker",
+      "handoff": "comment-only"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "gate-vocab-without-marker",
+      "handoff": "comment-only"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "gate-vocab-without-marker",
+      "handoff": "comment-only"
+    }
+  },
+  "adr": [
+    "ADR-010 G1"
+  ]
+}

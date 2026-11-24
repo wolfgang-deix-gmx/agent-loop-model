@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "legacy-without-role",
+  "description": "Legacy recognition does not check role labels.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "status:planned"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "legacy"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "not-gate-mode",
+      "reason": "mode-legacy",
+      "handoff": "none"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "not-gate-mode",
+      "reason": "mode-legacy",
+      "handoff": "none"
+    }
+  },
+  "adr": [
+    "ADR-010 G1"
+  ],
+  "note": "Legacy semantics are out of scope (Epic-008 L4)."
+}

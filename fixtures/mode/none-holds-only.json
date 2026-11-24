@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "none-holds-only",
+  "description": "needs:operator and needs:upstream alone are no mode signal.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "needs:operator",
+      "needs:upstream"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "none"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "not-gate-mode",
+      "reason": "mode-none",
+      "handoff": "none"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "not-gate-mode",
+      "reason": "mode-none",
+      "handoff": "none"
+    }
+  },
+  "adr": [
+    "ADR-010 G1",
+    "ADR-010 G6"
+  ]
+}

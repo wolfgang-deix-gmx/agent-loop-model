@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "missing-created",
+  "description": "Open gate issue without any gate and without terminal.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "role:architect"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "prefix-invalid",
+      "reason": "missing-created",
+      "handoff": "needs-operator"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "prefix-invalid",
+      "reason": "missing-created",
+      "handoff": "needs-operator"
+    }
+  },
+  "adr": [
+    "ADR-010 G2",
+    "ADR-010 G7"
+  ]
+}

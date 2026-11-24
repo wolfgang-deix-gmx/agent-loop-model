@@ -1,0 +1,47 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "all-holds",
+  "description": "All three holds.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "needs:upstream",
+      "needs:replanning",
+      "needs:operator",
+      "role:architect"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "created",
+      "maturity": "none",
+      "exec": "none",
+      "holds": "needs:operator,needs:replanning,needs:upstream",
+      "terminal": "none",
+      "roleExpected": "architect",
+      "roleActual": "architect",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "none",
+      "type": "task",
+      "maturity": "none",
+      "minMaturity": "none",
+      "hold": "needs:operator,needs:replanning,needs:upstream"
+    }
+  },
+  "adr": [
+    "ADR-010 G3",
+    "ADR-010 G6"
+  ]
+}

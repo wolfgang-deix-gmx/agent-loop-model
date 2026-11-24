@@ -1,0 +1,50 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "open-recovery",
+  "description": "OPEN with terminal requires operator recovery.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "gate:drafted",
+      "gate:specified",
+      "gate:promoted",
+      "gate:implemented",
+      "gate:accepted",
+      "maturity:master",
+      "exec:agent",
+      "status:finished"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "accepted",
+      "maturity": "master",
+      "exec": "agent",
+      "holds": "none",
+      "terminal": "open-recovery",
+      "roleExpected": "none",
+      "roleActual": "none",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "none",
+      "type": "task",
+      "maturity": "master",
+      "minMaturity": "none",
+      "hold": "none"
+    }
+  },
+  "adr": [
+    "ADR-010 G7"
+  ]
+}

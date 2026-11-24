@@ -1,0 +1,45 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "unknown-hold-ignored",
+  "description": "Unknown needs:* members are ignored.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "needs:foo",
+      "role:architect"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "ok",
+      "mode": "gate"
+    },
+    "contract": {
+      "outcome": "ok",
+      "type": "task",
+      "top": "created",
+      "maturity": "none",
+      "exec": "none",
+      "holds": "none",
+      "terminal": "none",
+      "roleExpected": "architect",
+      "roleActual": "architect",
+      "roleDrift": "no"
+    },
+    "pool": {
+      "outcome": "ok",
+      "pool": "draft",
+      "type": "task",
+      "maturity": "none",
+      "minMaturity": "master",
+      "hold": "none"
+    }
+  },
+  "adr": [
+    "ADR-010 G6",
+    "ADR-010 G8"
+  ]
+}

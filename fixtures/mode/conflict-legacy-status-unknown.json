@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schema/fixture.schema.json",
+  "id": "conflict-legacy-status-unknown",
+  "description": "Unknown status:* member without marker.",
+  "inputKind": "set",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "status:unknown",
+      "role:coder"
+    ]
+  },
+  "expected": {
+    "mode": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "legacy-status-unknown",
+      "handoff": "comment-only"
+    },
+    "contract": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "legacy-status-unknown",
+      "handoff": "comment-only"
+    },
+    "pool": {
+      "outcome": "fail",
+      "class": "mode-conflict",
+      "reason": "legacy-status-unknown",
+      "handoff": "comment-only"
+    }
+  },
+  "adr": [
+    "ADR-010 G1"
+  ],
+  "covers": {
+    "legacy": "unknown"
+  }
+}
