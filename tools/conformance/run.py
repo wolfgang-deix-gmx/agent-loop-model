@@ -32,7 +32,7 @@ def run():
     model = read(ROOT / 'model/gate-model.json')
     manifest = read(args.label_manifest)
     git_bash = Path(os.environ.get('ProgramFiles', 'C:/Program Files')) / 'Git/bin/bash.exe'
-    bash = str(git_bash) if os.name == 'nt' and git_bash.is_file() else shutil.which('bash')
+    bash = (str(git_bash) if git_bash.is_file() else None) if os.name == 'nt' else shutil.which('bash')
     if not bash: raise ModelError('native Git Bash not found')
     env = os.environ.copy()
     env.pop('LOOP_E4_CUTOVER', None)

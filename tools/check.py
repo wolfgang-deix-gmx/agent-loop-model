@@ -454,10 +454,11 @@ def main() -> int:
             cases = [f for f in transitions if f["transition"] == transition["id"]]
             if {f["admissible"] for f in cases} != {True, False}:
                 missing.append(f"{transition['id']}: true/false")
-            if not any(f["path"] == "guard" for f in cases):
+            if not any(f["path"] == "guard" and "needs:unknown" in f["input"]["labels"] for f in cases):
                 missing.append(f"{transition['id']}: guard")
             if transition["operatorOnly"] and not any(
-                    f["id"] == transition["id"] + "-mode-conflict" and f["path"] == "none" for f in cases):
+                    f["path"] == "none" and "mode:gate" in f["input"]["labels"] and
+                    "role:planner" in f["input"]["labels"] for f in cases):
                 missing.append(f"{transition['id']}: mode conflict")
             for exc in transition.get("exceptions", []):
                 if not any(f["path"] == "exception:" + exc["id"] for f in cases):
@@ -468,6 +469,9 @@ def main() -> int:
               for suffix in ("allowed", "mode-conflict", "terminal-present", "terminals-multiple")),
             "terminal-finished-invalid-prefix", "terminal-abandoned-invalid-prefix",
         }
+        ids = [f["id"] for f in transitions]
+        missing.extend(f"duplicate fixture id: {ident}" for ident, count in collections.Counter(ids).items() if count > 1)
+        missing.extend(f"file name differs from id: {p.name}" for p, f in zip(transition_files, transitions) if p.stem != f["id"])
         missing.extend(f"required case: {ident}" for ident in sorted(required_ids - {f["id"] for f in transitions}))
         missing.extend(f"fixture {f['id']}: unknown transition" for f in transitions
                        if f["transition"] not in {t["id"] for t in model["transitions"]["items"]})
