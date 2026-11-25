@@ -1,0 +1,16 @@
+{
+  "id": "recover-open-terminal-unknown-hold",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "status:finished",
+      "needs:unknown"
+    ]
+  },
+  "transition": "recover-open-terminal",
+  "admissible": false,
+  "path": "guard",
+  "adr": "ADR-010 G1-G8",
+  "reason": "Unknown hold blocks every consumer action."
+}

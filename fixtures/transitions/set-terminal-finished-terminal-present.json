@@ -1,0 +1,15 @@
+{
+  "id": "set-terminal-finished-terminal-present",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "status:finished"
+    ]
+  },
+  "transition": "set-terminal-finished",
+  "admissible": false,
+  "path": "none",
+  "adr": "ADR-010 G1, G7",
+  "reason": "Terminal output requires unambiguous mode and no existing terminal."
+}

@@ -1,0 +1,20 @@
+{
+  "id": "withdraw-promoted-for-exec-change-allowed",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "maturity:advanced",
+      "gate:drafted",
+      "gate:specified",
+      "exec:agent",
+      "gate:promoted"
+    ]
+  },
+  "transition": "withdraw-promoted-for-exec-change",
+  "admissible": true,
+  "path": "regular",
+  "adr": "ADR-010 G1-G8",
+  "reason": "Static prerequisites only; external checks still apply."
+}

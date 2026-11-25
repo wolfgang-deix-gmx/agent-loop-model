@@ -1,0 +1,16 @@
+{
+  "id": "recover-open-terminal-mode-conflict",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "status:finished",
+      "role:planner"
+    ]
+  },
+  "transition": "recover-open-terminal",
+  "admissible": false,
+  "path": "none",
+  "adr": "ADR-010 G1-G8",
+  "reason": "Mode conflict excludes workflow writes."
+}

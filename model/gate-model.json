@@ -1,12 +1,12 @@
 {
   "$schema": "../schema/gate-model.schema.json",
   "meta": {
-    "modelVersion": "1.0.0-draft",
-    "releaseStatus": "unreleased",
+    "modelVersion": "1.0.0",
+    "releaseStatus": "prepared",
     "normative": false,
     "schemaVersion": "1",
     "title": "Agent loop gate model",
-    "description": "Machine-readable description of the gate lifecycle (ADR-010 G1-G8). Unreleased working state: not normative. Until the cutover decision (Epic-008 L1), ADR-010 is the authoritative source.",
+    "description": "Machine-readable description of the gate lifecycle (ADR-010 G1-G8). Prepared, not normative. Until the cutover decision (Epic-008 L1), ADR-010 is the authoritative source.",
     "source": {
       "adr": "ADR-010 gate lifecycle (wdeix docs/adr/adr-010-gate-lifecycle.md)",
       "wdeixCommit": "c22a1b1f96d5ca26c80742f7b78b9084cff47029",
@@ -447,7 +447,7 @@
         "staticPrecheck": { "all": [ { "value": { "of": "modeResult.mode", "in": ["none"] } }, { "state": { "in": ["OPEN"] } } ] },
         "externalPreconditions": ["gate-start-go", "creation-after-legacy-stop"],
         "postWrite": ["role-projection", "readback"],
-        "note": "mode:gate is set at creation and never changed; mode is never inferred from gate labels. Who creates gate issues is not fixed by ADR-010.",
+        "note": "mode:gate is set at creation and never changed; mode is never inferred from gate labels. The architect or operator creates gate issues (operator decision).",
         "adr": "ADR-010 G1, G2, Consequences"
       },
       {
@@ -529,7 +529,7 @@
         "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "topGate", "in": ["specified", "activated", "promoted", "implemented", "accepted"] } } ] },
         "externalPreconditions": ["main-architect-identity", "affected-claims-halted-first", "no-concurrent-change"],
         "postWrite": ["role-projection", "readback"],
-        "note": "Gates are withdrawn top-down before the body changes; a new spec/review round starts, and promotion or activation is again an operator gate. The existing PR stays the working state of the same delivery unit. Open point: ADR-010 G6 assigns the cascade to the main architect; the agent-loop write path lets only the operator remove gate:promoted and gate:activated.",
+        "note": "Gates are withdrawn top-down before the body changes; a new spec/review round starts, and promotion or activation is again an operator gate. The existing PR stays the working state of the same delivery unit. Known implementation difference: the write path refuses a cascade across an operator gate; L8 exception requested.",
         "adr": "ADR-010 G2, G6, G8"
       },
       {
@@ -548,7 +548,7 @@
         "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "topGate", "in": ["created", "drafted"] } } ] },
         "externalPreconditions": ["main-architect-identity", "no-concurrent-change"],
         "postWrite": ["readback"],
-        "note": "A maturity change is a spec change: it voids the current review round; specified and dependent gates are withdrawn first (withdraw-specified). Replacing the label takes two non-atomic writes; from drafted on, the intermediate state is cardinality-invalid until readback. Open point: the agent-loop write path sets maturity only together with advancing to drafted and refuses any later change.",
+        "note": "A maturity change is a spec change: it voids the current review round; specified and dependent gates are withdrawn first (withdraw-specified). Replacing the label takes two non-atomic writes; from drafted on, the intermediate state is cardinality-invalid until readback. Known implementation difference: the write path sets maturity only when advancing to drafted and refuses later changes; L8 exception requested.",
         "adr": "ADR-010 G3, G8"
       },
       {
@@ -557,7 +557,7 @@
         "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "value": { "of": "type", "in": ["task"] } }, { "value": { "of": "topGate", "in": ["created", "drafted", "specified"] } } ] },
         "externalPreconditions": ["no-concurrent-change"],
         "postWrite": ["readback"],
-        "note": "Execution is fixed per task before promotion. ADR-010 does not name the actor. Open point: the agent-loop write path sets exec only together with advancing to specified and refuses a change without revoke.",
+        "note": "The architect or operator sets execution before promotion (operator decision). Known implementation difference: the write path sets exec only when advancing to specified and refuses a change without revoke; L8 exception requested.",
         "adr": "ADR-010 G4, G8"
       },
       {
@@ -606,7 +606,7 @@
         "staticPrecheck": { "all": [ { "ref": "gate-ok-open" }, { "not": { "has": "needs:upstream" } } ] },
         "externalPreconditions": ["documented-reason", "no-concurrent-change"],
         "postWrite": ["readback"],
-        "note": "ADR-010 does not name who sets needs:upstream; agents may only report its fulfilment.",
+        "note": "All roles may set needs:upstream; only the operator releases it (operator decision).",
         "adr": "ADR-010 G6"
       },
       {
@@ -621,7 +621,7 @@
         "id": "set-terminal-finished", "kind": "terminal-set", "actors": ["operator"], "operatorOnly": true,
         "labelChanges": { "add": ["status:finished"] },
         "staticPrecheck": { "all": [ { "value": { "of": "modeResult.mode", "in": ["gate"] } }, { "count": { "select": { "family": "terminal", "members": "known" }, "op": "eq", "value": 0 } } ] },
-        "exceptions": [
+        "ruleNotes": [
           { "id": "G7-no-gate-precondition", "text": "The terminal write requires no additional gate precondition; it checks only unambiguous mode, terminal uniqueness and release of all claims. It is therefore admissible from any contract result as long as the mode is gate.", "adr": "ADR-010 G7" }
         ],
         "externalPreconditions": ["operator-identity", "all-claims-released", "merge-or-evidence", "parent-goal-and-children", "no-concurrent-change"],
@@ -632,7 +632,7 @@
         "id": "set-terminal-abandoned", "kind": "terminal-set", "actors": ["operator"], "operatorOnly": true,
         "labelChanges": { "add": ["status:abandoned"] },
         "staticPrecheck": { "all": [ { "value": { "of": "modeResult.mode", "in": ["gate"] } }, { "count": { "select": { "family": "terminal", "members": "known" }, "op": "eq", "value": 0 } } ] },
-        "exceptions": [
+        "ruleNotes": [
           { "id": "G7-no-gate-precondition", "text": "No gates are coded as a precondition for abandoned.", "adr": "ADR-010 G7" }
         ],
         "externalPreconditions": ["operator-identity", "all-claims-released", "merge-or-evidence", "no-concurrent-change"],
@@ -651,7 +651,7 @@
       {
         "id": "recover-open-terminal", "kind": "recovery", "actors": ["operator"], "operatorOnly": true,
         "labelChanges": { "operatorDefined": true },
-        "staticPrecheck": { "value": { "of": "terminal", "in": ["open-recovery"] } },
+        "staticPrecheck": { "all": [ { "value": { "of": "modeResult.mode", "in": ["gate"] } }, { "value": { "of": "terminal", "in": ["open-recovery"] } } ] },
         "externalPreconditions": ["operator-identity", "no-concurrent-change"],
         "postWrite": ["readback"],
         "note": "An OPEN issue with terminal requires recovery by the operator and no agent work; handoff by comment/notify.",

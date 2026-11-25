@@ -1,0 +1,20 @@
+{
+  "id": "set-implemented-operator-allowed",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "maturity:advanced",
+      "gate:drafted",
+      "gate:specified",
+      "exec:operator",
+      "gate:promoted"
+    ]
+  },
+  "transition": "set-implemented-operator",
+  "admissible": true,
+  "path": "regular",
+  "adr": "ADR-010 G1-G8",
+  "reason": "Static prerequisites only; external checks still apply."
+}

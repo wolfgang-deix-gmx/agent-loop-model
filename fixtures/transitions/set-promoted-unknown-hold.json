@@ -1,0 +1,20 @@
+{
+  "id": "set-promoted-unknown-hold",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "maturity:advanced",
+      "gate:drafted",
+      "gate:specified",
+      "exec:agent",
+      "needs:unknown"
+    ]
+  },
+  "transition": "set-promoted",
+  "admissible": false,
+  "path": "guard",
+  "adr": "ADR-010 G1-G8",
+  "reason": "Unknown hold blocks every consumer action."
+}

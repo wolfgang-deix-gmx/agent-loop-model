@@ -1,0 +1,16 @@
+{
+  "id": "change-maturity-allowed",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "maturity:advanced"
+    ]
+  },
+  "transition": "change-maturity",
+  "admissible": true,
+  "path": "regular",
+  "adr": "ADR-010 G1-G8",
+  "reason": "Static prerequisites only; external checks still apply."
+}

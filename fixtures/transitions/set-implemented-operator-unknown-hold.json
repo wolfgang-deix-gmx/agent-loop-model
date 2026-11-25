@@ -1,0 +1,21 @@
+{
+  "id": "set-implemented-operator-unknown-hold",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "maturity:advanced",
+      "gate:drafted",
+      "gate:specified",
+      "exec:operator",
+      "gate:promoted",
+      "needs:unknown"
+    ]
+  },
+  "transition": "set-implemented-operator",
+  "admissible": false,
+  "path": "guard",
+  "adr": "ADR-010 G1-G8",
+  "reason": "Unknown hold blocks every consumer action."
+}

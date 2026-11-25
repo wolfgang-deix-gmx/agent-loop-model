@@ -1,0 +1,16 @@
+{
+  "id": "set-terminal-abandoned-terminals-multiple",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "status:finished",
+      "status:abandoned"
+    ]
+  },
+  "transition": "set-terminal-abandoned",
+  "admissible": false,
+  "path": "none",
+  "adr": "ADR-010 G1, G7",
+  "reason": "Terminal output requires unambiguous mode and no existing terminal."
+}

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.0 (prepared)
+
+- Conformance preparation; publication requires a separate tagged release.
+
 All notable changes to the model are recorded here from `1.0.0` on. Versioning
 follows [docs/versioning.md](docs/versioning.md).
 
