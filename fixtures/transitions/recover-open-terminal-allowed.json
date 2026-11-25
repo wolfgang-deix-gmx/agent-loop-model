@@ -1,0 +1,15 @@
+{
+  "id": "recover-open-terminal-allowed",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "status:finished"
+    ]
+  },
+  "transition": "recover-open-terminal",
+  "admissible": true,
+  "path": "regular",
+  "adr": "ADR-010 G1-G8",
+  "reason": "Static prerequisites only; external checks still apply."
+}

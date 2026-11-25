@@ -1,0 +1,6 @@
+{
+  "id": "terminal-abandoned-invalid-prefix",
+  "input": {"state": "OPEN", "labels": ["mode:gate", "gate:specified"]},
+  "transition": "set-terminal-abandoned", "admissible": true, "path": "regular",
+  "adr": "ADR-010 G7", "reason": "Abandonment has no gate-prefix requirement; external requirements remain."
+}

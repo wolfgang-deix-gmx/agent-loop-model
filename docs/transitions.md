@@ -10,7 +10,8 @@ states:
 | `labelChanges` | labels added, removed or replaced; `operatorDefined` for recovery |
 | `cascade` | for withdrawals: removal order, highest gate first |
 | `staticPrecheck` | from which classification results the transition is admissible (a condition) |
-| `exceptions` | admitted deviations from the regular pre-check (G7 terminal, recovery) |
+| `exceptions` | executable alternative pre-checks, each with a mandatory `staticPrecheck` |
+| `ruleNotes` | explanatory rules without an executable condition, including G7 terminal |
 | `externalPreconditions` | what labels cannot prove, by name (catalogue in `externalPreconditions.catalog`) |
 | `postWrite` | mandatory steps after the write: role projection, readback, remove roles, close issue |
 
@@ -27,6 +28,8 @@ No result `ok` anywhere in the model means "allowed to write".
 `transitions.globalPrecheck` applies in addition to every `staticPrecheck` and
 every exception: `actionGuard.outcome` must be `ok`, so an unknown `needs:*`
 label blocks every transition (see [consumer-contract.md](consumer-contract.md)).
+The static test is the global pre-check AND (the regular pre-check OR an
+executable exception). A rule note is explanation, not another condition.
 
 ## Overview
 
@@ -54,7 +57,7 @@ label blocks every transition (see [consumer-contract.md](consumer-contract.md))
 | `set-terminal-finished` | operator only | **G7:** mode gate, no terminal; no gate precondition | all claims released, merge or evidence |
 | `set-terminal-abandoned` | operator only | **G7:** mode gate, no terminal | all claims released, deliberate abort |
 | `recover-prefix-invalid` | operator only | contract prefix-invalid | operator identity |
-| `recover-open-terminal` | operator only | terminal open-recovery | operator identity |
+| `recover-open-terminal` | operator only | mode gate, terminal open-recovery | operator identity |
 
 ## Rules that shape the table
 
@@ -76,13 +79,11 @@ label blocks every transition (see [consumer-contract.md](consumer-contract.md))
 - **Non-atomic writes:** GitHub label operations are not atomic. Every write is
   followed by a readback; there is no compare-and-swap.
 
-Where ADR-010 does not name an actor (who creates gate issues, who sets
-`needs:upstream`, who sets `exec:*`, who withdraws `promoted` for an exec
-change, who withdraws delivery gates after a head change), the model states its
-reading in `note` and the point is listed for the conformance check.
+Where ADR-010 does not name an actor, the model records the operator decision
+in the relevant transition note.
 
 Where the agent-loop write path is stricter than ADR-010, the model follows
-ADR-010 and names the difference in `note` as an open point: the write path
+ADR-010 and names the difference in `note` as a requested L8 exception: the write path
 lets only the operator remove `gate:promoted` and `gate:activated` (also inside
 a withdrawal cascade), and it sets maturity and exec only together with
 advancing to `drafted` and `specified` respectively, refusing later changes.

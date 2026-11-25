@@ -1,0 +1,14 @@
+{
+  "id": "create-gate-issue-mode-conflict",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "role:planner"
+    ]
+  },
+  "transition": "create-gate-issue",
+  "admissible": false,
+  "path": "none",
+  "adr": "ADR-010 G1-G8",
+  "reason": "Mode conflict excludes workflow writes."
+}

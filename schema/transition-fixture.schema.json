@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/wolfgang-deix-gmx/agent-loop-model/schema/transition-fixture.schema.json",
+  "title": "Static transition fixture",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "input", "transition", "admissible", "path", "adr", "reason"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+    "input": {
+      "type": "object", "additionalProperties": false, "required": ["state", "labels"],
+      "properties": {
+        "state": {"enum": ["OPEN", "CLOSED"]},
+        "labels": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}
+      }
+    },
+    "transition": {"type": "string"},
+    "admissible": {"type": "boolean"},
+    "path": {"type": "string", "pattern": "^(regular|none|guard|exception:[a-z0-9-]+)$"},
+    "adr": {"type": "string", "pattern": "^ADR-010 "},
+    "reason": {"type": "string", "minLength": 1}
+  },
+  "allOf": [
+    {"if": {"properties": {"admissible": {"const": true}}},
+     "then": {"properties": {"path": {"pattern": "^(regular|exception:)"}}},
+     "else": {"properties": {"path": {"enum": ["none", "guard"]}}}}
+  ]
+}

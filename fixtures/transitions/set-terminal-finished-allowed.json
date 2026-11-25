@@ -1,0 +1,16 @@
+{
+  "id": "set-terminal-finished-allowed",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "maturity:advanced"
+    ]
+  },
+  "transition": "set-terminal-finished",
+  "admissible": true,
+  "path": "regular",
+  "adr": "ADR-010 G1-G8",
+  "reason": "Static prerequisites only; external checks still apply."
+}

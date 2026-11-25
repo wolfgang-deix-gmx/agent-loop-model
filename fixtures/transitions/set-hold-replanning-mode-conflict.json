@@ -1,0 +1,17 @@
+{
+  "id": "set-hold-replanning-mode-conflict",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "maturity:advanced",
+      "role:planner"
+    ]
+  },
+  "transition": "set-hold-replanning",
+  "admissible": false,
+  "path": "none",
+  "adr": "ADR-010 G1-G8",
+  "reason": "Mode conflict excludes workflow writes."
+}

@@ -1,0 +1,6 @@
+{
+  "id": "hold-prefix-already-held",
+  "input": {"state": "OPEN", "labels": ["mode:gate", "gate:specified", "needs:operator"]},
+  "transition": "set-hold-operator", "admissible": false, "path": "none",
+  "adr": "ADR-010 G2", "reason": "The hold is already present, so the exception does not apply."
+}

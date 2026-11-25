@@ -1,0 +1,19 @@
+{
+  "id": "withdraw-specified-mode-conflict",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "maturity:advanced",
+      "gate:drafted",
+      "gate:specified",
+      "role:planner"
+    ]
+  },
+  "transition": "withdraw-specified",
+  "admissible": false,
+  "path": "none",
+  "adr": "ADR-010 G1-G8",
+  "reason": "Mode conflict excludes workflow writes."
+}

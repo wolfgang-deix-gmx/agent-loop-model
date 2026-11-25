@@ -159,8 +159,9 @@ def check_model(model: dict, rep: Report) -> None:
               "legacy status list (b) well-formed", "bad legacy status")
 
     meta = model["meta"]
-    pre_ok = meta["releaseStatus"] == "released" or ("-" in meta["modelVersion"] and meta["normative"] is False)
-    rep.check(pre_ok, "meta: unreleased working state carries a pre-release version and normative=false",
+    pre_ok = ((meta["releaseStatus"] == "unreleased" and meta["modelVersion"].endswith("-draft")) or
+              (meta["releaseStatus"] == "prepared" and "-" not in meta["modelVersion"])) and meta["normative"] is False
+    rep.check(pre_ok, "meta: release preparation state and version agree; not normative",
               f"{meta['modelVersion']} / {meta['releaseStatus']} / normative={meta['normative']}")
 
     # Derivations: names, ordering of references, row ids, codes.
@@ -257,8 +258,11 @@ def check_model(model: dict, rep: Report) -> None:
     rep.check(need <= kinds, "transitions: every transition kind present", f"missing {sorted(need - kinds)}")
     has_exc = {e["id"] for t in model["transitions"]["items"] for e in t.get("exceptions", [])}
     rec = {t["id"] for t in model["transitions"]["items"] if t["kind"] == "recovery"}
-    rep.check(any(x.startswith("G7") for x in has_exc) and {"recover-prefix-invalid", "recover-open-terminal"} <= rec,
-              "transitions: G7 exception and both recovery paths present", f"exceptions {sorted(has_exc)}, recovery {sorted(rec)}")
+    notes = {e["id"] for t in model["transitions"]["items"] for e in t.get("ruleNotes", [])}
+    rep.check("G7-no-gate-precondition" in notes and "prefix-invalid-handoff" in has_exc and
+              {"recover-prefix-invalid", "recover-open-terminal"} <= rec,
+              "transitions: G7 rule, executable handoff and recovery paths present",
+              f"notes {sorted(notes)}, exceptions {sorted(has_exc)}, recovery {sorted(rec)}")
 
 
 def code_problems(fx: dict, codes: dict) -> list[str]:
@@ -414,7 +418,8 @@ def main() -> int:
     rep = Report()
     model_schema = load(ROOT / "schema" / "gate-model.schema.json")
     fixture_schema = load(ROOT / "schema" / "fixture.schema.json")
-    for name, sch in (("gate-model", model_schema), ("fixture", fixture_schema)):
+    transition_schema = load(ROOT / "schema" / "transition-fixture.schema.json")
+    for name, sch in (("gate-model", model_schema), ("fixture", fixture_schema), ("transition-fixture", transition_schema)):
         try:
             Draft202012Validator.check_schema(sch)
             rep.check(True, f"schema {name}: valid Draft 2020-12")
@@ -429,12 +434,44 @@ def main() -> int:
     fixtures = []
     ferrs = []
     for path in sorted((ROOT / "fixtures").rglob("*.json")):
+        if "transitions" in path.parts:
+            continue
         doc = load(path)
         e = schema_errors(fx_validator, doc)
         ferrs += [f"{path.relative_to(ROOT)}: {x}" for x in e]
         fixtures.append((path, doc))
     rep.check(bool(fixtures) and not ferrs, f"fixtures: {len(fixtures)} files valid against schema/fixture.schema.json",
               "; ".join(ferrs[:10]))
+
+    transition_files = sorted((ROOT / "fixtures" / "transitions").rglob("*.json"))
+    tv = Draft202012Validator(transition_schema)
+    terrs = [f"{p.relative_to(ROOT)}: {err}" for p in transition_files for err in schema_errors(tv, load(p))]
+    transitions = [load(p) for p in transition_files]
+    rep.check(bool(transitions) and not terrs, "transition fixtures match schema", "; ".join(terrs[:10]))
+    if not errs and not terrs:
+        missing = []
+        for transition in model["transitions"]["items"]:
+            cases = [f for f in transitions if f["transition"] == transition["id"]]
+            if {f["admissible"] for f in cases} != {True, False}:
+                missing.append(f"{transition['id']}: true/false")
+            if not any(f["path"] == "guard" for f in cases):
+                missing.append(f"{transition['id']}: guard")
+            if transition["operatorOnly"] and not any(
+                    f["id"] == transition["id"] + "-mode-conflict" and f["path"] == "none" for f in cases):
+                missing.append(f"{transition['id']}: mode conflict")
+            for exc in transition.get("exceptions", []):
+                if not any(f["path"] == "exception:" + exc["id"] for f in cases):
+                    missing.append(f"{transition['id']}: exception {exc['id']}")
+        required_ids = {
+            "hold-prefix-exception", "hold-prefix-already-held", "hold-prefix-mode-conflict",
+            *(f"{t}-{suffix}" for t in ("set-terminal-finished", "set-terminal-abandoned")
+              for suffix in ("allowed", "mode-conflict", "terminal-present", "terminals-multiple")),
+            "terminal-finished-invalid-prefix", "terminal-abandoned-invalid-prefix",
+        }
+        missing.extend(f"required case: {ident}" for ident in sorted(required_ids - {f["id"] for f in transitions}))
+        missing.extend(f"fixture {f['id']}: unknown transition" for f in transitions
+                       if f["transition"] not in {t["id"] for t in model["transitions"]["items"]})
+        rep.check(not missing, "transition coverage: per-transition true/false, guard, exception", "; ".join(missing))
 
     if not errs:
         check_model(model, rep)

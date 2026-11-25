@@ -20,11 +20,12 @@ release treats them as unknown and fails closed (see
 | `releaseStatus` | `modelVersion` | Normative |
 |---|---|---|
 | `unreleased` | `X.Y.Z-draft` | no |
-| `pre-release` | `X.Y.Z-rc.N` | no; only with an explicit operator go |
-| `released` | `X.Y.Z` | only after the cutover decision pins it |
+| `prepared` | `X.Y.Z` | only after the cutover decision pins a published release |
 
 - A release is published as a tag `vX.Y.Z` with the model file as release
   asset and its SHA-256.
+- The file at the tag remains `prepared`: only the tag and matching release
+  asset and checksum establish publication, not the metadata in the file.
 - A release is created only after a conformance check of the decision tables
   against the fixtures, the agent-loop evaluator and ADR-010. Open deviations
   block the release.
@@ -33,4 +34,4 @@ release treats them as unknown and fails closed (see
 
 ## Current state
 
-`1.0.0-draft`, `unreleased`. No tag, no release.
+`1.0.0`, `prepared`; publication must be checked in Releases.

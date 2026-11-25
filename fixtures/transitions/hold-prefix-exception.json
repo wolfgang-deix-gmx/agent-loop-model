@@ -1,0 +1,9 @@
+{
+  "id": "hold-prefix-exception",
+  "input": {"state": "OPEN", "labels": ["mode:gate", "gate:specified"]},
+  "transition": "set-hold-operator",
+  "admissible": true,
+  "path": "exception:prefix-invalid-handoff",
+  "adr": "ADR-010 G2",
+  "reason": "A non-prefix requires operator handoff despite the regular valid-prefix precheck."
+}

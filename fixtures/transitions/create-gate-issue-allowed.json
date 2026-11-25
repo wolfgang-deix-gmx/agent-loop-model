@@ -1,0 +1,12 @@
+{
+  "id": "create-gate-issue-allowed",
+  "input": {
+    "state": "OPEN",
+    "labels": []
+  },
+  "transition": "create-gate-issue",
+  "admissible": true,
+  "path": "regular",
+  "adr": "ADR-010 G1-G8",
+  "reason": "Static prerequisites only; external checks still apply."
+}

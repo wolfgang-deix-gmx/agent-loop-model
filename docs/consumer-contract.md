@@ -8,6 +8,8 @@ Rules for any consumer of this model, for example a control panel.
   asset `gate-model.json`.
 - Never pin a branch, an unreleased working state (`releaseStatus:
   unreleased`) or a version with a pre-release suffix for normative use.
+- `prepared` alone does not establish publication: the tag, release asset and
+  trusted checksum must exist and match before a consumer pins them.
 - A checksum protects only if the expected value is bound to a trusted release.
   If the asset is missing, changed or its checksum does not match, **fail** —
   never fall back to another version.

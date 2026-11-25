@@ -1,0 +1,14 @@
+{
+  "id": "create-gate-issue-unknown-hold",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "needs:unknown"
+    ]
+  },
+  "transition": "create-gate-issue",
+  "admissible": false,
+  "path": "guard",
+  "adr": "ADR-010 G1-G8",
+  "reason": "Unknown hold blocks every consumer action."
+}

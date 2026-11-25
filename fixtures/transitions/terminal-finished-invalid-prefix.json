@@ -1,0 +1,9 @@
+{
+  "id": "terminal-finished-invalid-prefix",
+  "input": {"state": "OPEN", "labels": ["mode:gate", "gate:specified"]},
+  "transition": "set-terminal-finished",
+  "admissible": true,
+  "path": "regular",
+  "adr": "ADR-010 G7",
+  "reason": "Terminal writes require an unambiguous mode, not a valid gate prefix; external requirements still apply."
+}

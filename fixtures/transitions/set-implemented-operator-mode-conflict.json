@@ -1,0 +1,21 @@
+{
+  "id": "set-implemented-operator-mode-conflict",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "maturity:advanced",
+      "gate:drafted",
+      "gate:specified",
+      "exec:operator",
+      "gate:promoted",
+      "role:planner"
+    ]
+  },
+  "transition": "set-implemented-operator",
+  "admissible": false,
+  "path": "none",
+  "adr": "ADR-010 G1-G8",
+  "reason": "Mode conflict excludes workflow writes."
+}

@@ -1,0 +1,16 @@
+{
+  "id": "recover-prefix-invalid-mode-conflict",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:specified",
+      "role:planner"
+    ]
+  },
+  "transition": "recover-prefix-invalid",
+  "admissible": false,
+  "path": "none",
+  "adr": "ADR-010 G1-G8",
+  "reason": "Mode conflict excludes workflow writes."
+}

@@ -1,0 +1,17 @@
+{
+  "id": "set-terminal-abandoned-unknown-hold",
+  "input": {
+    "state": "OPEN",
+    "labels": [
+      "mode:gate",
+      "gate:created",
+      "maturity:advanced",
+      "needs:unknown"
+    ]
+  },
+  "transition": "set-terminal-abandoned",
+  "admissible": false,
+  "path": "guard",
+  "adr": "ADR-010 G1-G8",
+  "reason": "Unknown hold blocks every consumer action."
+}
